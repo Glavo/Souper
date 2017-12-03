@@ -1,4 +1,4 @@
-package org.glavo.ssoup.parser
+package org.glavo.souper.parser
 
 import org.jsoup.{parser => jp}
 

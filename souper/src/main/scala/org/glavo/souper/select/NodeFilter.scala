@@ -1,6 +1,6 @@
-package org.glavo.ssoup.select
+package org.glavo.souper.select
 
-import org.glavo.ssoup.nodes.Node
+import org.glavo.souper.nodes.Node
 import org.jsoup.{nodes => js}
 import org.jsoup.select.NodeFilter.{FilterResult => FR}
 

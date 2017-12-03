@@ -1,9 +1,9 @@
-package org.glavo.ssoup.nodes
+package org.glavo.souper.nodes
 
 import java.util
 
-import org.glavo.ssoup.parser.Tag
-import org.glavo.ssoup.select.Evaluator
+import org.glavo.souper.parser.Tag
+import org.glavo.souper.select.Evaluator
 import org.jsoup.{nodes => js}
 
 import scala.collection.{immutable, mutable}
@@ -109,11 +109,67 @@ class Element protected(override val asJsoup: js.Element) extends Node {
 
   def appendElement(tagName: String): Element = Element(asJsoup.appendElement(tagName))
 
+  def prependElement(tagName: String): Element = Element(asJsoup.prependElement(tagName))
+
+  def appendText(text: String): Element.this.type = {
+    asJsoup.appendText(text)
+    this
+  }
+
+  def prependText(text: String): Element.this.type = {
+    asJsoup.appendText(text)
+    this
+  }
+
+  def +=(html: String): Element.this.type = {
+    asJsoup.append(html)
+    this
+  }
+
+  def append(html: String): Element.this.type = {
+    asJsoup.append(html)
+    this
+  }
+
+  def +=:(html: String): Element.this.type = {
+    asJsoup.prepend(html)
+    this
+  }
+
+  def prepend(html: String): Element.this.type = {
+    asJsoup.prepend(html)
+    this
+  }
+
+  override def before(html: String): Element = Element(asJsoup.before(html))
+
+  override def before(node: Node): Element = Element(asJsoup.before(node.asJsoup))
+
+  override def after(html: String): Element = Element(asJsoup.after(html))
+
+  override def after(node: Node): Element = Element(asJsoup.after(node.asJsoup))
+
+  def empty(): Element.this.type = {
+    asJsoup.empty()
+    this
+  }
+
+  override def wrap(html: String): Element = Element(asJsoup.wrap(html))
+
+  def cssSelector: String = asJsoup.cssSelector()
+
+  //todo def siblingElements: Elements
+
+  def nextElementSibling: Element = Element(asJsoup.nextElementSibling())
+
+  def previousElementSibling: Element = Element(asJsoup.previousElementSibling())
+
   //todo
 }
 
 object Element {
   def apply(elem: js.Element): Element = elem match { //todo
+    case null => null
     case doc: js.Document => Document(doc)
     case elem: js.Element => new Element(elem)
   }

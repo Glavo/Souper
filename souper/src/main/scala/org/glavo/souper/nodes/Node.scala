@@ -1,6 +1,6 @@
-package org.glavo.ssoup.nodes
+package org.glavo.souper.nodes
 
-import org.glavo.ssoup.select.{NodeFilter, NodeVisitor}
+import org.glavo.souper.select.{NodeFilter, NodeVisitor}
 import org.jsoup.{nodes => js}
 
 import scala.collection.mutable

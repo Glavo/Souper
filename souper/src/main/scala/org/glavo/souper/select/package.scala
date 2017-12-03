@@ -1,4 +1,4 @@
-package org.glavo.ssoup
+package org.glavo.souper
 
 import org.jsoup.{select => js}
 

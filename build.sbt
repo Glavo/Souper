@@ -1,12 +1,12 @@
 lazy val root = (project in file("."))
-  .aggregate(ssoup)
+  .aggregate(souper)
   .settings(
     autoScalaLibrary := false
   )
 
-lazy val ssoup = (project in file("ssoup"))
+lazy val souper = (project in file("souper"))
   .settings(Common.common: _*)
   .settings(
-    name := "Ssoup",
+    name := "Souper",
     libraryDependencies += "org.jsoup" % "jsoup" % "1.11.2"
   )
