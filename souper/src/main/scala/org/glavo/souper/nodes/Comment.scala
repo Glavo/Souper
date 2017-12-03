@@ -7,7 +7,7 @@ final class Comment private(override val asJsoup: js.Comment) extends LeafNode {
 }
 
 object Comment {
-  def apply(comment: js.Comment): Comment = new Comment(comment)
+  def apply(comment: js.Comment): Comment = if(comment == null) null else new Comment(comment)
 
   def apply(data: String): Comment = Comment(new js.Comment(data))
 }

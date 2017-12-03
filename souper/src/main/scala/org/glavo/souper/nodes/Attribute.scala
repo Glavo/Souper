@@ -30,7 +30,7 @@ final class Attribute private(val asJsoup: js.Attribute) extends Product2[String
 
 object Attribute {
 
-  def apply(asJsoup: js.Attribute): Attribute = new Attribute(asJsoup)
+  def apply(asJsoup: js.Attribute): Attribute = if(asJsoup == null) null else new Attribute(asJsoup)
 
   def apply(key: String, value: String, parent: Attributes = null): Attribute =
     new Attribute(new js.Attribute(key, value, if (parent == null) null else parent.asJsoup))

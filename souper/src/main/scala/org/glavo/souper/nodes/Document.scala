@@ -64,7 +64,7 @@ object Document {
     val limitedQuirks: QuirksMode = js.Document.QuirksMode.limitedQuirks
   }
 
-  def apply(doc: js.Document): Document = new Document(doc)
+  def apply(doc: js.Document): Document = if(doc == null) null else new Document(doc)
 
   def apply(baseUri: String): Document = Document(new js.Document(baseUri))
 

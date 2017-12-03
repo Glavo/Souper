@@ -7,5 +7,5 @@ final class XmlDeclaration(override val asJsoup: js.XmlDeclaration) extends Leaf
 }
 
 object XmlDeclaration {
-  def apply(xml: js.XmlDeclaration): XmlDeclaration = new XmlDeclaration(xml)
+  def apply(xml: js.XmlDeclaration): XmlDeclaration = if (xml == null) null else new XmlDeclaration(xml)
 }

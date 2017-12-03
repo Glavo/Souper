@@ -8,6 +8,7 @@ private[nodes] abstract class LeafNode extends Node {
 
 object LeafNode {
   def apply(node: js.Node): LeafNode = node match {
+    case null => null
     case comment: js.Comment => Comment(comment)
     case data: js.DataNode => DataNode(data)
     case docType: js.DocumentType => DocumentType(docType)

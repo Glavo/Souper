@@ -15,5 +15,5 @@ object DocumentType {
 
   private val PubSysKey = "pubSysKey"
 
-  def apply(docType: js.DocumentType): DocumentType = new DocumentType(docType)
+  def apply(docType: js.DocumentType): DocumentType = if(docType == null ) null else new DocumentType(docType)
 }

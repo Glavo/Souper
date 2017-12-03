@@ -80,7 +80,7 @@ final class Attributes private(val asJsoup: js.Attributes) extends Iterable[Attr
 }
 
 object Attributes {
-  def apply(asJsoup: js.Attributes): Attributes = new Attributes(asJsoup)
+  def apply(asJsoup: js.Attributes): Attributes = if(asJsoup == null) null else new Attributes(asJsoup)
 
   def apply(): Attributes = Attributes(new js.Attributes())
 
