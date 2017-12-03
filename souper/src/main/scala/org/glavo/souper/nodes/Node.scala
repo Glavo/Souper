@@ -109,7 +109,15 @@ abstract class Node extends Cloneable {
 
 object Node {
   def apply(node: js.Node): Node = node match {
+    case null => null
     case elem: js.Element => Element(elem)
+
+    //LeafNode
+    case comment: js.Comment => Comment(comment)
+    case data: js.DataNode => DataNode(data)
+    case docType: js.DocumentType => DocumentType(docType)
+    case text: js.TextNode => TextNode(text)
+    case xml: js.XmlDeclaration => XmlDeclaration(xml)
   }
 
   private class ListView(val list: java.util.List[js.Node]) extends mutable.Buffer[Node] {

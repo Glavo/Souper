@@ -164,7 +164,14 @@ class Element protected(override val asJsoup: js.Element) extends Node {
 
   def previousElementSibling: Element = Element(asJsoup.previousElementSibling())
 
-  //todo
+  def firstElementSibling: Element = Element(asJsoup.firstElementSibling())
+
+  def elementSiblingIndex: Int = asJsoup.elementSiblingIndex()
+
+  def lastElementSibling: Element = Element(asJsoup.lastElementSibling())
+
+  //todo : DOM type methods
+
 }
 
 object Element {
