@@ -5,7 +5,7 @@ import org.jsoup.{nodes => js}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-final class Attributes private[nodes](val asJsoup: js.Attributes) extends Iterable[Attribute] {
+final class Attributes private(val asJsoup: js.Attributes) extends Iterable[Attribute] {
 
   def apply(key: String): String = asJsoup.get(key)
 
@@ -81,6 +81,8 @@ final class Attributes private[nodes](val asJsoup: js.Attributes) extends Iterab
 
 object Attributes {
   def apply(asJsoup: js.Attributes): Attributes = new Attributes(asJsoup)
+
+  def apply(): Attributes = Attributes(new js.Attributes())
 
   def unapplySeq(attributes: Attributes): Option[Seq[Attribute]] = Some(attributes.toSeq)
 

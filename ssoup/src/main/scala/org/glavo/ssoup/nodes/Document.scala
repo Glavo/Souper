@@ -2,7 +2,7 @@ package org.glavo.ssoup.nodes
 
 import org.jsoup.{nodes => js}
 
-final class Document(override val asJsoup: js.Element) extends Element(asJsoup) {
+final class Document(override val asJsoup: js.Document) extends Element(asJsoup) {
 
 }
 

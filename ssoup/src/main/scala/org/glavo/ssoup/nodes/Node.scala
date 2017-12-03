@@ -1,6 +1,6 @@
 package org.glavo.ssoup.nodes
 
-import org.glavo.ssoup.select.NodeVisitor
+import org.glavo.ssoup.select.{NodeFilter, NodeVisitor}
 import org.jsoup.{nodes => js}
 
 import scala.collection.mutable
@@ -8,8 +8,6 @@ import scala.collection.JavaConverters._
 
 abstract class Node extends Cloneable {
   val asJsoup: js.Node
-
-  def name: String = asJsoup.nodeName()
 
   def nodeName: String = asJsoup.nodeName()
 
@@ -94,12 +92,24 @@ abstract class Node extends Cloneable {
 
   def traverse(nodeVisitor: NodeVisitor): Node = Node(asJsoup.traverse(nodeVisitor))
 
+  def filter(nodeFilter: NodeFilter): Node = Node(asJsoup.filter(nodeFilter))
 
+  def outerHtml: String = asJsoup.outerHtml()
+
+  def html[A <: Appendable](appendable: A): appendable.type = asJsoup.html(appendable)
+
+  override def clone(): Node = Node(asJsoup.clone())
+
+  override def toString: String = asJsoup.toString
+
+  final override def equals(obj: scala.Any): Boolean = obj.isInstanceOf[Node] && obj.asInstanceOf[Node].asJsoup == asJsoup
+
+  final override def hashCode(): Int = asJsoup.hashCode()
 }
 
 object Node {
-  def apply(node: js.Node): Node = {
-    ??? //todo
+  def apply(node: js.Node): Node = node match {
+    case elem: js.Element => Element(elem)
   }
 
   private class ListView(val list: java.util.List[js.Node]) extends mutable.Buffer[Node] {

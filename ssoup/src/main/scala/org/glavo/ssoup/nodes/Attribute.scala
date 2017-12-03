@@ -2,7 +2,7 @@ package org.glavo.ssoup.nodes
 
 import org.jsoup.{nodes => js}
 
-final class Attribute(val asJsoup: js.Attribute) extends Product2[String, String] with Cloneable {
+final class Attribute private(val asJsoup: js.Attribute) extends Product2[String, String] with Cloneable {
   def key: String = asJsoup.getKey
 
   def key_=(key: String): Unit = asJsoup.setKey(key)
@@ -31,6 +31,9 @@ final class Attribute(val asJsoup: js.Attribute) extends Product2[String, String
 object Attribute {
 
   def apply(asJsoup: js.Attribute): Attribute = new Attribute(asJsoup)
+
+  def apply(key: String, value: String, parent: Attributes = null): Attribute =
+    new Attribute(new js.Attribute(key, value, if (parent == null) null else parent.asJsoup))
 
   def unapply(arg: Attribute): Option[(String, String)] = Some((arg.key, arg.value))
 
