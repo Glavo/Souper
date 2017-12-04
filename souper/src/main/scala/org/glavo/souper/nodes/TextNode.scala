@@ -19,6 +19,8 @@ final class TextNode private(override val asJsoup: js.TextNode) extends LeafNode
 object TextNode {
   def apply(text: js.TextNode): TextNode = if (text == null) null else new TextNode(text)
 
+  def apply(text: String): TextNode = new TextNode(new js.TextNode(text))
+
   def createFromEncoded(encodedText: String): TextNode =
     TextNode(js.TextNode.createFromEncoded(encodedText))
 }

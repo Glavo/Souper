@@ -82,7 +82,7 @@ final class Attributes private(val asJsoup: js.Attributes) extends Iterable[Attr
 object Attributes {
   def apply(asJsoup: js.Attributes): Attributes = if(asJsoup == null) null else new Attributes(asJsoup)
 
-  def apply(): Attributes = Attributes(new js.Attributes())
+  def apply(): Attributes = new Attributes(new js.Attributes())
 
   def unapplySeq(attributes: Attributes): Option[Seq[Attribute]] = Some(attributes.toSeq)
 

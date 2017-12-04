@@ -13,7 +13,7 @@ final class DataNode private(override val asJsoup: js.DataNode) extends LeafNode
 object DataNode {
   def apply(dataNode: js.DataNode): DataNode = if(dataNode == null) null else new DataNode(dataNode)
 
-  def apply(data: String): DataNode = DataNode(new js.DataNode(data))
+  def apply(data: String): DataNode = new DataNode(new js.DataNode(data))
 
   def createFromEncoded(encodedData: String, baseUri: String = null): DataNode =
     DataNode(js.DataNode.createFromEncoded(encodedData, baseUri))

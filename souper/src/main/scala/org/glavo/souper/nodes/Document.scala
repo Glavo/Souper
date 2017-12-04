@@ -66,7 +66,7 @@ object Document {
 
   def apply(doc: js.Document): Document = if(doc == null) null else new Document(doc)
 
-  def apply(baseUri: String): Document = Document(new js.Document(baseUri))
+  def apply(baseUri: String): Document = new Document(new js.Document(baseUri))
 
   def createShell(baseUri: String): Document = Document(js.Document.createShell(baseUri))
 }

@@ -1,13 +1,14 @@
 package org.glavo.souper.nodes
 
 import org.glavo.souper.Connection
+import org.glavo.souper.select.Elements
 import org.jsoup.{nodes => js}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-class FormElement(override val asJsoup: js.FormElement) extends Element(asJsoup) {
-  //todo def elements: Elements
+class FormElement private(override val asJsoup: js.FormElement) extends Element(asJsoup) {
+  def elements: Elements = Elements(asJsoup.elements())
 
   def addElement(element: Element): FormElement.this.type = {
     asJsoup.addElement(element.asJsoup)

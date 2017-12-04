@@ -3,8 +3,8 @@ package org.glavo.souper.nodes
 import org.glavo.souper.select.{NodeFilter, NodeVisitor}
 import org.jsoup.{nodes => js}
 
-import scala.collection.mutable
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 abstract class Node extends Cloneable {
   val asJsoup: js.Node
@@ -118,6 +118,9 @@ object Node {
     case docType: js.DocumentType => DocumentType(docType)
     case text: js.TextNode => TextNode(text)
     case xml: js.XmlDeclaration => XmlDeclaration(xml)
+    case _ => new Node {
+      override val asJsoup: js.Node = node
+    }
   }
 
   private class ListView(val list: java.util.List[js.Node]) extends mutable.Buffer[Node] {
