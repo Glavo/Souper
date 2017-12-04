@@ -1,16 +1,16 @@
 package org.glavo.souper.nodes
 
-import org.jsoup.{nodes => js}
+import org.jsoup.{nodes => jn}
 
 object Entities {
-  type EscapeMode = js.Entities.EscapeMode
+  type EscapeMode = jn.Entities.EscapeMode
 
   object EscapeMode {
-    val xhtml: EscapeMode = js.Entities.EscapeMode.xhtml
+    val xhtml: EscapeMode = jn.Entities.EscapeMode.xhtml
 
-    val base: EscapeMode = js.Entities.EscapeMode.base
+    val base: EscapeMode = jn.Entities.EscapeMode.base
 
-    val extended: EscapeMode = js.Entities.EscapeMode.extended
+    val extended: EscapeMode = jn.Entities.EscapeMode.extended
   }
 
 }

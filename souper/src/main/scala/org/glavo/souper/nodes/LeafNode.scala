@@ -1,18 +1,18 @@
 package org.glavo.souper.nodes
 
-import org.jsoup.{nodes => js}
+import org.jsoup.{nodes => jn}
 
 private[nodes] abstract class LeafNode extends Node {
 
 }
 
 object LeafNode {
-  def apply(node: js.Node): LeafNode = node match {
+  def apply(node: jn.Node): LeafNode = node match {
     case null => null
-    case comment: js.Comment => Comment(comment)
-    case data: js.DataNode => DataNode(data)
-    case docType: js.DocumentType => DocumentType(docType)
-    case text: js.TextNode => TextNode(text)
-    case xml: js.XmlDeclaration => XmlDeclaration(xml)
+    case comment: jn.Comment => Comment(comment)
+    case data: jn.DataNode => DataNode(data)
+    case docType: jn.DocumentType => DocumentType(docType)
+    case text: jn.TextNode => TextNode(text)
+    case xml: jn.XmlDeclaration => XmlDeclaration(xml)
   }
 }

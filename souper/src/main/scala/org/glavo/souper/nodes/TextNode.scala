@@ -1,8 +1,8 @@
 package org.glavo.souper.nodes
 
-import org.jsoup.{nodes => js}
+import org.jsoup.{nodes => jn}
 
-final class TextNode private(override val asJsoup: js.TextNode) extends LeafNode {
+final class TextNode private(override val asJsoup: jn.TextNode) extends LeafNode {
   def text: String = asJsoup.text()
 
   def text(text: String): TextNode = TextNode(asJsoup.text(text))
@@ -17,11 +17,11 @@ final class TextNode private(override val asJsoup: js.TextNode) extends LeafNode
 }
 
 object TextNode {
-  def apply(text: js.TextNode): TextNode = if (text == null) null else new TextNode(text)
+  def apply(text: jn.TextNode): TextNode = if (text == null) null else new TextNode(text)
 
-  def apply(text: String): TextNode = new TextNode(new js.TextNode(text))
+  def apply(text: String): TextNode = new TextNode(new jn.TextNode(text))
 
   def createFromEncoded(encodedText: String): TextNode =
-    TextNode(js.TextNode.createFromEncoded(encodedText))
+    TextNode(jn.TextNode.createFromEncoded(encodedText))
 }
 

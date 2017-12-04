@@ -1,13 +1,13 @@
 package org.glavo.souper.nodes
 
 import org.glavo.souper.select.{NodeFilter, NodeVisitor}
-import org.jsoup.{nodes => js}
+import org.jsoup.{nodes => jn}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 abstract class Node extends Cloneable {
-  val asJsoup: js.Node
+  val asJsoup: jn.Node
 
   def nodeName: String = asJsoup.nodeName()
 
@@ -108,22 +108,22 @@ abstract class Node extends Cloneable {
 }
 
 object Node {
-  def apply(node: js.Node): Node = node match {
+  def apply(node: jn.Node): Node = node match {
     case null => null
-    case elem: js.Element => Element(elem)
+    case elem: jn.Element => Element(elem)
 
     //LeafNode
-    case comment: js.Comment => Comment(comment)
-    case data: js.DataNode => DataNode(data)
-    case docType: js.DocumentType => DocumentType(docType)
-    case text: js.TextNode => TextNode(text)
-    case xml: js.XmlDeclaration => XmlDeclaration(xml)
+    case comment: jn.Comment => Comment(comment)
+    case data: jn.DataNode => DataNode(data)
+    case docType: jn.DocumentType => DocumentType(docType)
+    case text: jn.TextNode => TextNode(text)
+    case xml: jn.XmlDeclaration => XmlDeclaration(xml)
     case _ => new Node {
-      override val asJsoup: js.Node = node
+      override val asJsoup: jn.Node = node
     }
   }
 
-  private class ListView(val list: java.util.List[js.Node]) extends mutable.Buffer[Node] {
+  private class ListView(val list: java.util.List[jn.Node]) extends mutable.Buffer[Node] {
     override def apply(n: Int): Node = Node(list.get(n))
 
     override def update(n: Int, newelem: Node): Unit = list.set(n, newelem.asJsoup)

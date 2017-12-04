@@ -1,8 +1,8 @@
 package org.glavo.souper.nodes
 
-import org.jsoup.{nodes => js}
+import org.jsoup.{nodes => jn}
 
-final class DataNode private(override val asJsoup: js.DataNode) extends LeafNode {
+final class DataNode private(override val asJsoup: jn.DataNode) extends LeafNode {
   def wholeData: String = asJsoup.getWholeData
 
   def wholeData_=(data: String): Unit = asJsoup.setWholeData(data)
@@ -11,10 +11,10 @@ final class DataNode private(override val asJsoup: js.DataNode) extends LeafNode
 }
 
 object DataNode {
-  def apply(dataNode: js.DataNode): DataNode = if(dataNode == null) null else new DataNode(dataNode)
+  def apply(dataNode: jn.DataNode): DataNode = if(dataNode == null) null else new DataNode(dataNode)
 
-  def apply(data: String): DataNode = new DataNode(new js.DataNode(data))
+  def apply(data: String): DataNode = new DataNode(new jn.DataNode(data))
 
   def createFromEncoded(encodedData: String, baseUri: String = null): DataNode =
-    DataNode(js.DataNode.createFromEncoded(encodedData, baseUri))
+    DataNode(jn.DataNode.createFromEncoded(encodedData, baseUri))
 }

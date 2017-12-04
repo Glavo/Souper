@@ -5,13 +5,13 @@ import java.util.regex.Pattern
 
 import org.glavo.souper.parser.Tag
 import org.glavo.souper.select.{Elements, Evaluator}
-import org.jsoup.{nodes => js}
+import org.jsoup.{nodes => jn}
 
 import scala.collection.{immutable, mutable}
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 
-class Element protected(override val asJsoup: js.Element) extends Node {
+class Element protected(override val asJsoup: jn.Element) extends Node {
   def tagName: String = asJsoup.tagName()
 
   def tagName_=(tagName: String): Unit = asJsoup.tagName(tagName)
@@ -98,11 +98,11 @@ class Element protected(override val asJsoup: js.Element) extends Node {
   }
 
   def insertChildren(index: Int, children: Iterable[Node]): Element.this.type = {
-    asJsoup.insertChildren(index, new util.AbstractCollection[js.Node] {
-      override def iterator(): util.Iterator[js.Node] = new util.Iterator[js.Node] {
+    asJsoup.insertChildren(index, new util.AbstractCollection[jn.Node] {
+      override def iterator(): util.Iterator[jn.Node] = new util.Iterator[jn.Node] {
         private val it = children.iterator
 
-        override def next(): js.Node = it.next().asJsoup
+        override def next(): jn.Node = it.next().asJsoup
 
         override def hasNext: Boolean = it.hasNext
       }
@@ -317,16 +317,16 @@ class Element protected(override val asJsoup: js.Element) extends Node {
 }
 
 object Element {
-  def apply(elem: js.Element): Element = elem match {
+  def apply(elem: jn.Element): Element = elem match {
     case null => null
-    case doc: js.Document => Document(doc)
-    case form: js.FormElement => FormElement(form)
-    case pseudo: js.PseudoTextElement => PseudoTextElement(pseudo)
+    case doc: jn.Document => Document(doc)
+    case form: jn.FormElement => FormElement(form)
+    case pseudo: jn.PseudoTextElement => PseudoTextElement(pseudo)
     case _ => new Element(elem)
   }
 
   def apply(tag: Tag, baseUri: String, attributes: Attributes = null): Element =
-    Element(new js.Element(tag.asJsoup, baseUri, if (attributes == null) null else attributes.asJsoup))
+    Element(new jn.Element(tag.asJsoup, baseUri, if (attributes == null) null else attributes.asJsoup))
 
-  def apply(tag: String): Element = new Element(new js.Element(tag))
+  def apply(tag: String): Element = new Element(new jn.Element(tag))
 }

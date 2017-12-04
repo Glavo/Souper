@@ -2,9 +2,9 @@ package org.glavo.souper.nodes
 
 import java.nio.charset.Charset
 
-import org.jsoup.{nodes => js}
+import org.jsoup.{nodes => jn}
 
-final class Document(override val asJsoup: js.Document) extends Element(asJsoup) {
+final class Document(override val asJsoup: jn.Document) extends Element(asJsoup) {
   def location: String = asJsoup.location()
 
   def head: Element = Element(asJsoup.head())
@@ -43,30 +43,30 @@ final class Document(override val asJsoup: js.Document) extends Element(asJsoup)
 }
 
 object Document {
-  type OutputSettings = js.Document.OutputSettings
+  type OutputSettings = jn.Document.OutputSettings
 
   object OutputSettings {
-    type Syntax = js.Document.OutputSettings.Syntax
+    type Syntax = jn.Document.OutputSettings.Syntax
 
     object Syntax {
-      val html: Syntax = js.Document.OutputSettings.Syntax.html
+      val html: Syntax = jn.Document.OutputSettings.Syntax.html
 
-      val xml: Syntax = js.Document.OutputSettings.Syntax.xml
+      val xml: Syntax = jn.Document.OutputSettings.Syntax.xml
     }
 
   }
 
-  type QuirksMode = js.Document.QuirksMode
+  type QuirksMode = jn.Document.QuirksMode
 
   object QuirksMode {
-    val noQuirks: QuirksMode = js.Document.QuirksMode.noQuirks
-    val quirks: QuirksMode = js.Document.QuirksMode.quirks
-    val limitedQuirks: QuirksMode = js.Document.QuirksMode.limitedQuirks
+    val noQuirks: QuirksMode = jn.Document.QuirksMode.noQuirks
+    val quirks: QuirksMode = jn.Document.QuirksMode.quirks
+    val limitedQuirks: QuirksMode = jn.Document.QuirksMode.limitedQuirks
   }
 
-  def apply(doc: js.Document): Document = if(doc == null) null else new Document(doc)
+  def apply(doc: jn.Document): Document = if(doc == null) null else new Document(doc)
 
-  def apply(baseUri: String): Document = new Document(new js.Document(baseUri))
+  def apply(baseUri: String): Document = new Document(new jn.Document(baseUri))
 
-  def createShell(baseUri: String): Document = Document(js.Document.createShell(baseUri))
+  def createShell(baseUri: String): Document = Document(jn.Document.createShell(baseUri))
 }

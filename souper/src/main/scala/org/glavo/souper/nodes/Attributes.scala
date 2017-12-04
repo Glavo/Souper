@@ -1,11 +1,11 @@
 package org.glavo.souper.nodes
 
-import org.jsoup.{nodes => js}
+import org.jsoup.{nodes => jn}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-final class Attributes private(val asJsoup: js.Attributes) extends Iterable[Attribute] {
+final class Attributes private(val asJsoup: jn.Attributes) extends Iterable[Attribute] {
 
   def apply(key: String): String = asJsoup.get(key)
 
@@ -80,11 +80,11 @@ final class Attributes private(val asJsoup: js.Attributes) extends Iterable[Attr
 }
 
 object Attributes {
-  def apply(asJsoup: js.Attributes): Attributes = if(asJsoup == null) null else new Attributes(asJsoup)
+  def apply(asJsoup: jn.Attributes): Attributes = if(asJsoup == null) null else new Attributes(asJsoup)
 
-  def apply(): Attributes = new Attributes(new js.Attributes())
+  def apply(): Attributes = new Attributes(new jn.Attributes())
 
   def unapplySeq(attributes: Attributes): Option[Seq[Attribute]] = Some(attributes.toSeq)
 
-  def unapplySeq(attributes: js.Attributes): Option[Seq[Attribute]] = unapplySeq(Attributes(attributes))
+  def unapplySeq(attributes: jn.Attributes): Option[Seq[Attribute]] = unapplySeq(Attributes(attributes))
 }

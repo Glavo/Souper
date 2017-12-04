@@ -1,8 +1,8 @@
 package org.glavo.souper.nodes
 
-import org.jsoup.{nodes => js}
+import org.jsoup.{nodes => jn}
 
-final class Attribute private(val asJsoup: js.Attribute) extends Product2[String, String] with Cloneable {
+final class Attribute private(val asJsoup: jn.Attribute) extends Product2[String, String] with Cloneable {
   def key: String = asJsoup.getKey
 
   def key_=(key: String): Unit = asJsoup.setKey(key)
@@ -30,17 +30,17 @@ final class Attribute private(val asJsoup: js.Attribute) extends Product2[String
 
 object Attribute {
 
-  def apply(asJsoup: js.Attribute): Attribute = if(asJsoup == null) null else new Attribute(asJsoup)
+  def apply(asJsoup: jn.Attribute): Attribute = if(asJsoup == null) null else new Attribute(asJsoup)
 
   def apply(key: String, value: String, parent: Attributes = null): Attribute =
-    new Attribute(new js.Attribute(key, value, if (parent == null) null else parent.asJsoup))
+    new Attribute(new jn.Attribute(key, value, if (parent == null) null else parent.asJsoup))
 
   def unapply(arg: Attribute): Option[(String, String)] = Some((arg.key, arg.value))
 
-  def unapply(arg: js.Attribute): Option[(String, String)] = Some((arg.getKey, arg.getValue))
+  def unapply(arg: jn.Attribute): Option[(String, String)] = Some((arg.getKey, arg.getValue))
 
   @inline
   def createFromEncoded(unencodedKey: String, encodedValue: String): Attribute =
-    new Attribute(js.Attribute.createFromEncoded(unencodedKey, encodedValue))
+    new Attribute(jn.Attribute.createFromEncoded(unencodedKey, encodedValue))
 
 }

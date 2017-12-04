@@ -1,13 +1,13 @@
 package org.glavo.souper.nodes
 
 import org.glavo.souper.parser._
-import org.jsoup.{nodes => js}
+import org.jsoup.{nodes => jn}
 
-class PseudoTextElement private(override val asJsoup: js.PseudoTextElement) extends Element(asJsoup)
+class PseudoTextElement private(override val asJsoup: jn.PseudoTextElement) extends Element(asJsoup)
 
 object PseudoTextElement {
-  def apply(pseudo: js.PseudoTextElement): PseudoTextElement = new PseudoTextElement(pseudo)
+  def apply(pseudo: jn.PseudoTextElement): PseudoTextElement = new PseudoTextElement(pseudo)
 
   def apply(tag: Tag, baseUri: String, attributes: Attributes): PseudoTextElement =
-    new PseudoTextElement(new js.PseudoTextElement(tag, baseUri, attributes.asJsoup))
+    new PseudoTextElement(new jn.PseudoTextElement(tag, baseUri, attributes.asJsoup))
 }
