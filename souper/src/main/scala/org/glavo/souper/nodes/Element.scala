@@ -1,12 +1,15 @@
 package org.glavo.souper.nodes
 
 import java.util
+import java.util.regex.Pattern
 
 import org.glavo.souper.parser.Tag
 import org.glavo.souper.select.{Elements, Evaluator}
 import org.jsoup.{nodes => js}
 
 import scala.collection.{immutable, mutable}
+import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
 class Element protected(override val asJsoup: js.Element) extends Node {
   def tagName: String = asJsoup.tagName()
@@ -205,7 +208,112 @@ class Element protected(override val asJsoup: js.Element) extends Node {
   def getElementsByAttributeValueContaining(key: String, matcher: String): Elements =
     Elements(asJsoup.getElementsByAttributeValueContaining(key, matcher))
 
+  def getElementsByAttributeValueMatching(key: String, regex: Regex): Elements =
+    Elements(asJsoup.getElementsByAttributeValueMatching(key, regex.pattern))
 
+  def getElementsByAttributeValueMatching(key: String, pattern: Pattern): Elements =
+    Elements(asJsoup.getElementsByAttributeValueMatching(key, pattern))
+
+  def getElementsByAttributeValueMatching(key: String, regex: String): Elements =
+    Elements(asJsoup.getElementsByAttributeValueMatching(key, regex))
+
+  def getElementsByIndexLessThan(index: Int): Elements =
+    Elements(asJsoup.getElementsByIndexLessThan(index))
+
+  def getElementsByIndexGreaterThan(index: Int): Elements =
+    Elements(asJsoup.getElementsByIndexGreaterThan(index))
+
+  def getElementsByIndexEquals(index: Int): Elements =
+    Elements(asJsoup.getElementsByIndexEquals(index))
+
+  def getElementsContainingText(searchText: String): Elements =
+    Elements(asJsoup.getElementsContainingText(searchText))
+
+  def getElementsContainingOwnText(searchText: String): Elements =
+    Elements(asJsoup.getElementsContainingOwnText(searchText))
+
+  def getElementsMatchingText(regex: Regex): Elements =
+    Elements(asJsoup.getElementsMatchingText(regex.pattern))
+
+  def getElementsMatchingText(pattern: Pattern): Elements =
+    Elements(asJsoup.getElementsMatchingText(pattern))
+
+  def getElementsMatchingText(regex: String): Elements =
+    Elements(asJsoup.getElementsMatchingText(regex))
+
+  def getElementsMatchingOwnText(regex: Regex): Elements =
+    Elements(asJsoup.getElementsMatchingOwnText(regex.pattern))
+
+  def getElementsMatchingOwnText(pattern: Pattern): Elements =
+    Elements(asJsoup.getElementsMatchingOwnText(pattern))
+
+  def getElementsMatchingOwnText(regex: String): Elements =
+    Elements(asJsoup.getElementsMatchingOwnText(regex))
+
+  def allElements: Elements = Elements(asJsoup.getAllElements)
+
+  def getAllElements: Elements = Elements(asJsoup.getAllElements)
+
+  def text: String = asJsoup.text()
+
+  def text_=(text: String): Unit = asJsoup.text(text)
+
+  def text(text: String): Element.this.type = {
+    asJsoup.text(text)
+    this
+  }
+
+  def wholeText: String = asJsoup.wholeText()
+
+  def ownText: String = asJsoup.ownText()
+
+  def hasText: Boolean = asJsoup.hasText
+
+  def data: String = asJsoup.data()
+
+  def className: String = asJsoup.className()
+
+  def classNames: mutable.Set[String] = asJsoup.classNames().asScala
+
+  def classNames_=(classNames: mutable.Set[String]): Unit = asJsoup.classNames(classNames.asJava)
+
+  def classNames(classNames: mutable.Set[String]): Element.this.type = {
+    asJsoup.classNames(classNames.asJava)
+    this
+  }
+
+  def hasClass(className: String): Boolean = asJsoup.hasClass(className)
+
+  def addClass(className: String): Element.this.type = {
+    asJsoup.addClass(className)
+    this
+  }
+
+  def removeClass(className: String): Element.this.type = {
+    asJsoup.removeClass(className)
+    this
+  }
+
+  def toggleClass(className: String): Element.this.type = {
+    asJsoup.toggleClass(className)
+    this
+  }
+
+  def value: String = asJsoup.`val`()
+
+  def value_=(value: String): Unit = asJsoup.`val`(value)
+
+  def value(value: String): Element.this.type = {
+    asJsoup.`val`(value)
+    this
+  }
+
+  def html: String = asJsoup.html()
+
+  def html(html: String): Element.this.type = {
+    asJsoup.html(html)
+    this
+  }
 }
 
 object Element {
