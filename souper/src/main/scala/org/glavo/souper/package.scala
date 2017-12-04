@@ -4,6 +4,14 @@ import org.jsoup
 
 package object souper {
 
+  type HttpStatusException = org.jsoup.HttpStatusException
+
+  type SerializationException = org.jsoup.SerializationException
+
+  type UncheckedIOException = org.jsoup.UncheckedIOException
+
+  type UnsupportedMimeTypeException = org.jsoup.UnsupportedMimeTypeException
+
   implicit class RichConnection(val connection: jsoup.Connection) extends AnyVal {
     @inline
     def asSouper: Connection = Connection(connection)

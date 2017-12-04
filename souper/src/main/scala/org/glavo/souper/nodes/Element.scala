@@ -151,20 +151,10 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
     this
   }
 
-  override def before(html: String): Element = Element(asJsoup.before(html))
-
-  override def before(node: Node): Element = Element(asJsoup.before(node.asJsoup))
-
-  override def after(html: String): Element = Element(asJsoup.after(html))
-
-  override def after(node: Node): Element = Element(asJsoup.after(node.asJsoup))
-
   def empty(): Element.this.type = {
     asJsoup.empty()
     this
   }
-
-  override def wrap(html: String): Element = Element(asJsoup.wrap(html))
 
   def cssSelector: String = asJsoup.cssSelector()
 

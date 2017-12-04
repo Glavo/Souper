@@ -1,6 +1,7 @@
 package org.glavo.souper
 
 import java.io.{File, InputStream}
+import java.net.URL
 
 import org.glavo.souper.nodes._
 import org.glavo.souper.parser.Parser
@@ -23,4 +24,6 @@ object Souper {
 
   def parseBodyFragment(bodyHtml: String, baseUri: String = ""): Document =
     Jsoup.parseBodyFragment(bodyHtml, baseUri).asSouper
+
+  def parse(url: URL, timeoutMillis: Int): Document = Jsoup.parse(url, timeoutMillis).asSouper
 }

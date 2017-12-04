@@ -1,104 +1,342 @@
 package org.glavo.souper.nodes
 
 import org.glavo.souper.select.{NodeFilter, NodeVisitor}
+import org.jetbrains.annotations.{Contract, NotNull, Nullable}
 import org.jsoup.{nodes => jn}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
+/** The base, abstract Node model. Elements, Documents, Comments etc are all Node instances. */
 abstract class Node extends Cloneable {
+  type Self = Node.this.type
+
   val asJsoup: jn.Node
 
-  def nodeName: String = asJsoup.nodeName()
+  /** Get the node name of this node. Use for debugging purposes and not logic switching (for that, use instanceof). */
+  @NotNull
+  @Contract(pure = true)
+  @inline
+  final def nodeName: String = asJsoup.nodeName()
 
-  def hasParent: Boolean = asJsoup.hasParent
+  @inline
+  final def hasParent: Boolean = asJsoup.hasParent
 
-  def attr(attributeKey: String): String = asJsoup.attr(attributeKey)
+  /** Get an attribute's value by its key. <b>Case insensitive</b>
+    *
+    * To get an absolute URL from an attribute that may be a relative URL, prefix the key with `abs`,
+    * which is a shortcut to the `absUrl` method.
+    *
+    * E.g.:
+    *
+    * {{{
+    *     String url = a.attr("abs:href");
+    * }}}
+    *
+    * @param attributeKey The attribute key.
+    * @return The attribute, or empty string if not present (to avoid nulls).
+    * @see `attributes()`
+    * @see `hasAttr(String)`
+    * @see `absUrl(String)`
+    */
+  @NotNull
+  @inline
+  final def attr(@NotNull attributeKey: String): String = asJsoup.attr(attributeKey)
 
-  def attributes: Attributes = Attributes(asJsoup.attributes())
+  /** Get all of the element's attributes. */
+  @inline
+  final def attributes: Attributes = Attributes(asJsoup.attributes())
 
-  def attr(attributeKey: String, attributeValue: String): Node.this.type = {
+  /**
+    * Set an attribute (key=value). If the attribute already exists, it is replaced. The attribute key comparison is
+    * <b>case insensitive</b>.
+    *
+    * @param attributeKey   The attribute key.
+    * @param attributeValue The attribute value.
+    * @return this (for chaining)
+    */
+  @inline
+  final def attr(@NotNull attributeKey: String, attributeValue: String): Node.this.type = {
     asJsoup.attr(attributeKey, attributeValue)
     this
   }
 
-  def hasAttr(attributeKey: String): Boolean = asJsoup.hasAttr(attributeKey)
+  /** Test if this element has an attribute. <b>Case insensitive</b>
+    *
+    * @param attributeKey The attribute key to check.
+    * @return true if the attribute exists, false if not.
+    */
+  @inline
+  final def hasAttr(@NotNull attributeKey: String): Boolean = asJsoup.hasAttr(attributeKey)
 
-  def removeAttr(attributeKey: String): Node.this.type = {
+  /** Remove an attribute from this element.
+    *
+    * @param attributeKey The attribute to remove.
+    * @return this (for chaining)
+    */
+  @inline
+  final def removeAttr(@NotNull attributeKey: String): Node.this.type = {
     asJsoup.removeAttr(attributeKey)
     this
   }
 
-  def clearAttributes(): Node.this.type = {
+  /** Clear (remove) all of the attributes in this node.
+    *
+    * @return this, for chaining
+    */
+  @inline
+  final def clearAttributes(): Node.this.type = {
     asJsoup.clearAttributes()
     this
   }
 
+  /** Get the base URI of this node. */
+  @NotNull
+  @inline
   def baseUri: String = asJsoup.baseUri()
 
+  /** Get a child node by its 0-based index.
+    *
+    * @param index index of child node
+    * @return the child node at this index. Throws a { @code IndexOutOfBoundsException} if the index is out of bounds.
+    */
+  @inline
   def childNode(index: Int): Node = Node(asJsoup.childNode(index))
 
+  /** Get this node's children. Presented as an unmodifiable list: new children can not be added, but the child nodes
+    * themselves can be manipulated.
+    *
+    * @throws UnsupportedOperationException if this node is LeafNode
+    * @return list of children. If no children, returns an empty list.
+    */
+  @NotNull
+  @Contract(pure = true)
+  @inline
   def childNodes: Seq[Node] = new Seq[Node] {
     private val list = asJsoup.childNodes()
 
-    override def length = list.size()
+    override def length: Int = list.size()
 
     override def apply(idx: Int) = Node(list.get(idx))
 
     override def iterator: Iterator[Node] = new Iterator[Node] {
       private val it = list.iterator()
 
-      override def hasNext = it.hasNext
+      override def hasNext: Boolean = it.hasNext
 
       override def next() = Node(it.next())
     }
   }
 
-  def childNodesCopy: scala.collection.mutable.Buffer[Node] = new Node.ListView(asJsoup.childNodesCopy)
+  /** Returns a deep copy of this node's children. Changes made to
+    * these nodes will not be reflected in the original nodes */
+  @NotNull
+  @Contract(pure = true)
+  @inline
+  def childNodesCopy: mutable.Buffer[Node] = new Node.ListView(asJsoup.childNodesCopy)
 
+  /** Get the number of child nodes that this node holds. */
+  @Contract(pure = true)
+  @inline
   def childNodeSize: Int = asJsoup.childNodeSize()
 
-  def parent: Node = Node(asJsoup.parent())
+  /** Gets this node's parent node.
+    *
+    * @return parent node; or null if no parent.
+    */
+  @Nullable
+  @Contract(pure = true)
+  @inline
+  def parent = Node(asJsoup.parent())
 
-  def parentNode: Node = Node(asJsoup.parentNode())
+  /** Gets this node's parent node. Not overridable by extending classes, so useful if you really just need the Node type.
+    *
+    * @return parent node; or null if no parent.
+    */
+  @Nullable
+  @Contract(pure = true)
+  @inline
+  def parentNode = Node(asJsoup.parentNode())
 
-  def root: Node = Node(asJsoup.root())
+  /** Get this node's root node; that is, its topmost ancestor. If this node is the top ancestor, returns `this`. */
+  @NotNull
+  @Contract(pure = true)
+  @inline
+  def root = Node(asJsoup.root())
 
-  def ownerDocument: Document = Document(asJsoup.ownerDocument())
+  /** Gets the Document associated with this Node.
+    *
+    * @return the Document associated with this Node, or null if there is no such Document.
+    */
+  @Nullable
+  @Contract(pure = true)
+  @inline
+  def ownerDocument = Document(asJsoup.ownerDocument())
 
+  /** Remove (delete) this node from the DOM tree. If this node has children, they are also removed. */
+  @inline
   def remove(): Unit = asJsoup.remove()
 
-  def before(html: String): Node = Node(asJsoup.before(html))
 
-  def before(node: Node): Node = Node(asJsoup.before(node.asJsoup))
+  /** Insert the specified HTML into the DOM before this node (i.e. as a preceding sibling).
+    *
+    * @param html HTML to add before this node
+    * @return this node, for chaining
+    * @see `after(String)`
+    */
+  @inline
+  def before(@NotNull html: String): Self = {
+    asJsoup.before(html)
+    this
+  }
 
-  def after(html: String): Node = Node(asJsoup.after(html))
+  /** Insert the specified node into the DOM before this node (i.e. as a preceding sibling).
+    *
+    * @param node to add before this node
+    * @return this node, for chaining
+    * @see `after(Node)`
+    */
+  @inline
+  def before(@NotNull node: Node): Self = {
+    asJsoup.before(node.asJsoup)
+    this
+  }
 
-  def after(node: Node): Node = Node(asJsoup.after(node.asJsoup))
+  /** Insert the specified HTML into the DOM after this node (i.e. as a following sibling).
+    *
+    * @param html HTML to add after this node
+    * @return this node, for chaining
+    * @see `before(String)`
+    */
+  @inline
+  def after(@NotNull html: String): Self = {
+    asJsoup.after(html)
+    this
+  }
 
-  def wrap(html: String): Node = Node(asJsoup.wrap(html))
+  /** Insert the specified node into the DOM after this node (i.e. as a following sibling).
+    *
+    * @param node to add after this node
+    * @return this node, for chaining
+    * @see `before(Node)`
+    */
+  @inline
+  def after(@NotNull node: Node): Self = {
+    asJsoup.after(node.asJsoup)
+    this
+  }
 
+  /** Wrap the supplied HTML around this node.
+    *
+    * @param html HTML to wrap around this element, e.g. `<div class="head"></div>`. Can be arbitrarily deep.
+    * @return this node, for chaining.
+    */
+  @Nullable
+  @inline
+  def wrap(@NotNull html: String): Self = {
+    if (asJsoup.wrap(html) != null) this else null
+  }
+
+  /** Removes this node from the DOM, and moves its children up into the node's parent. This has the effect of dropping
+    * the node but keeping its children.
+    *
+    * For example, with the input html:
+    *
+    * `<div>One <span>Two <b>Three</b></span></div>`
+    * Calling `element.unwrap()` on the `span` element will result in the html:
+    * `<div>One Two <b>Three</b></div>`
+    * and the `"Two "` [[org.glavo.souper.nodes.TextNode]] being returned.
+    *
+    * @return the first child of this node, after the node has been unwrapped. Null if the node had no children.
+    * @see `remove()`
+    * @see `wrap(String)`
+    */
+  @Nullable
+  @Contract(pure = true)
+  @inline
   def unwrap: Node = Node(asJsoup.unwrap())
 
-  def replaceWith(in: Node): Unit = asJsoup.replaceWith(in.asJsoup)
+  /** Replace this node in the DOM with the supplied node.
+    *
+    * @param in the node that will will replace the existing node.
+    */
+  @inline
+  def replaceWith(@NotNull in: Node): Unit = asJsoup.replaceWith(in.asJsoup)
 
+  /** Retrieves this node's sibling nodes. Similar to `childNodes()  node.parent.childNodes()`, but does not
+    * include this node (a node is not a sibling of itself).
+    *
+    * @return node siblings. If the node has no parent, returns an empty list.
+    */
+  @NotNull
+  @Contract(pure = true)
+  @inline
   def siblingNodes: mutable.Buffer[Node] = new Node.ListView(asJsoup.siblingNodes())
 
+  /** Get this node's next sibling.
+    *
+    * @return next sibling, or null if this is the last sibling
+    */
+  @Nullable
+  @Contract(pure = true)
+  @inline
   def nextSibling: Node = Node(asJsoup.nextSibling())
 
+  /** Get this node's previous sibling.
+    *
+    * @return the previous sibling, or null if this is the first sibling
+    */
+  @Nullable
+  @inline
   def previousSibling: Node = Node(asJsoup.previousSibling())
 
+  /** Get the list index of this node in its node sibling list. I.e. if this is the first node
+    * sibling, returns 0.
+    *
+    * @return position in node sibling list
+    * @see [[org.glavo.souper.nodes.Element#elementSiblingIndex()]]
+    */
+  @Contract(pure = true)
+  @inline
   def siblingIndex: Int = asJsoup.siblingIndex()
 
-  def traverse(nodeVisitor: NodeVisitor): Node = Node(asJsoup.traverse(nodeVisitor))
+  /** Perform a depth-first traversal through this node and its descendants.
+    *
+    * @param nodeVisitor the visitor callbacks to perform on each node
+    * @return this node, for chaining
+    */
+  @inline
+  def traverse(@NotNull nodeVisitor: NodeVisitor): Self = {
+    asJsoup.traverse(nodeVisitor)
+    this
+  }
 
-  def filter(nodeFilter: NodeFilter): Node = Node(asJsoup.filter(nodeFilter))
+  /** Perform a depth-first filtering through this node and its descendants.
+    *
+    * @param nodeFilter the filter callbacks to perform on each node
+    * @return this node, for chaining
+    */
+  @inline
+  def filter(@NotNull nodeFilter: NodeFilter): Self = {
+    asJsoup.filter(nodeFilter)
+    this
+  }
 
+  /** Get the outer HTML of this node. */
+  @NotNull
+  @Contract(pure = true)
+  @inline
   def outerHtml: String = asJsoup.outerHtml()
 
-  def html[A <: Appendable](appendable: A): appendable.type = asJsoup.html(appendable)
+  /** Write this node and its children to the given [[java.lang.Appendable]].
+    *
+    * @param appendable the [[java.lang.Appendable]] to write to.
+    * @return the supplied [[java.lang.Appendable]], for chaining.
+    */
+  @inline
+  def html[A <: Appendable](@NotNull appendable: A): appendable.type = asJsoup.html(appendable)
 
-  override def clone(): Node = Node(asJsoup.clone())
+  override def clone() = Node(asJsoup.clone())
 
   override def toString: String = asJsoup.toString
 
@@ -108,7 +346,9 @@ abstract class Node extends Cloneable {
 }
 
 object Node {
-  def apply(node: jn.Node): Node = node match {
+  @Nullable
+  @Contract(value = "null -> null; !null -> !null", pure = true)
+  def apply(@Nullable node: jn.Node): Node = node match {
     case null => null
     case elem: jn.Element => Element(elem)
 
@@ -155,5 +395,4 @@ object Node {
       override def next(): Node = Node(it.next())
     }
   }
-
 }
