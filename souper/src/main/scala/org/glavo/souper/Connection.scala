@@ -4,18 +4,177 @@ import java.io.{BufferedInputStream, InputStream}
 import java.net.{Proxy, URL}
 import java.util
 
-import org.glavo.souper.nodes.Document
+import org.glavo.souper.nodes._
 import org.glavo.souper.parser.Parser
 import org.jsoup
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-class Connection(val asJsoup: jsoup.Connection) extends AnyVal {
+final class Connection private(val asJsoup: jsoup.Connection) {
+  type Self = Connection.this.type
 
+  def url(url: URL): Self = {
+    asJsoup.url(url)
+    this
+  }
+
+  def url(url: String): Self = {
+    asJsoup.url(url)
+    this
+  }
+
+  def proxy(proxy: Proxy): Self = {
+    asJsoup.proxy(proxy)
+    this
+  }
+
+  def proxy(host: String, port: Int): Self = {
+    asJsoup.proxy(host, port)
+    this
+  }
+
+  def userAgent(userAgent: String): Self = {
+    asJsoup.userAgent(userAgent)
+    this
+  }
+
+  def timeout(millis: Int): Self = {
+    asJsoup.timeout(millis)
+    this
+  }
+
+  def maxBodySize(bytes: Int): Self = {
+    asJsoup.maxBodySize(bytes)
+    this
+  }
+
+  def referrer(referrer: String): Self = {
+    asJsoup.referrer(referrer)
+    this
+  }
+
+  def followRedirects(followRedirects: Boolean): Self = {
+    asJsoup.followRedirects(followRedirects)
+    this
+  }
+
+  def method(method: Connection.Method): Self = {
+    asJsoup.method(method)
+    this
+  }
+
+  def ignoreHttpErrors(ignoreHttpErrors: Boolean): Self = {
+    asJsoup.ignoreHttpErrors(ignoreHttpErrors)
+    this
+  }
+
+  def ignoreContentType(ignoreContentType: Boolean): Self = {
+    asJsoup.ignoreContentType(ignoreContentType)
+    this
+  }
+
+  def data(key: String, value: String): Self = {
+    asJsoup.data(key, value)
+    this
+  }
+
+  def data(key: String, filename: String, inputStream: InputStream): Self = {
+    asJsoup.data(key, filename, inputStream)
+    this
+  }
+
+  def data(key: String, filename: String, inputStream: InputStream, contentType: String): Self = {
+    asJsoup.data(key, filename, inputStream, contentType)
+    this
+  }
+
+  def data(data: Iterable[Connection.KeyVal]): Self = {
+    asJsoup.data(new util.AbstractCollection[jsoup.Connection.KeyVal] {
+      override def iterator(): util.Iterator[jsoup.Connection.KeyVal] = new util.Iterator[jsoup.Connection.KeyVal] {
+        private val it = data.iterator
+
+        override def next(): jsoup.Connection.KeyVal = it.next().asJsoup
+
+        override def hasNext: Boolean = it.hasNext
+      }
+
+      override def size(): Int = data.size
+    })
+    this
+  }
+
+  def data(data: Map[String, String]): Self = {
+    asJsoup.data(data.asJava)
+    this
+  }
+
+  def data(keyvals: String*): Self = {
+    asJsoup.data(keyvals: _*)
+    this
+  }
+
+  def data(key: String): Connection.KeyVal = Connection.KeyVal(asJsoup.data(key))
+
+  def requestBody(body: String): Self = {
+    asJsoup.requestBody(body)
+    this
+  }
+
+  def header(name: String, value: String): Self = {
+    asJsoup.header(name, value)
+    this
+  }
+
+  def headers(headers: Map[String, String]): Self = {
+    asJsoup.headers(headers.asJava)
+    this
+  }
+
+  def cookie(name: String, value: String): Self = {
+    asJsoup.cookie(name, value)
+    this
+  }
+
+  def cookies(cookies: Map[String, String]): Self = {
+    asJsoup.cookies(cookies.asJava)
+    this
+  }
+
+  def parser(parser: Parser): Self = {
+    asJsoup.parser(parser.asJsoup)
+    this
+  }
+
+  def postDataCharset(charset: String): Self = {
+    asJsoup.postDataCharset(charset)
+    this
+  }
+
+  def get(): Document = asJsoup.get().asSouper
+
+  def post(): Document = asJsoup.post().asSouper
+
+  def execute(): Connection.Response = Connection.Response(asJsoup.execute())
+
+  def request(): Connection.Request = Connection.Request(asJsoup.request())
+
+  def request(request: Connection.Request): Self = {
+    asJsoup.request(request.asJsoup)
+    this
+  }
+
+  def response(): Connection.Response = Connection.Response(asJsoup.response())
+
+  def response(response: Connection.Response): Self = {
+    asJsoup.response(response.asJsoup)
+    this
+  }
 }
 
 object Connection {
+  def apply(connection: jsoup.Connection): Connection = new Connection(connection)
+
   type Method = org.jsoup.Connection.Method
 
   object Method {
@@ -119,7 +278,12 @@ object Connection {
     def cookies(): mutable.Map[String, String] = asJsoup.cookies().asScala
   }
 
-  class Request(override val asJsoup: jsoup.Connection.Request) extends Base(asJsoup) {
+  object Base {
+    @inline
+    def apply(base: jsoup.Connection.Base[_]): Base = if (base == null) null else new Base(base)
+  }
+
+  class Request private(override val asJsoup: jsoup.Connection.Request) extends Base(asJsoup) {
 
     def proxy: Proxy = asJsoup.proxy()
 
@@ -173,7 +337,7 @@ object Connection {
       this
     }
 
-    def ignoreContentType: Boolean = asJsoup.ignoreHttpErrors()
+    def ignoreContentType: Boolean = asJsoup.ignoreContentType()
 
     def ignoreContentType_=(ignoreContentType: Boolean): Unit = asJsoup.ignoreContentType(ignoreContentType)
 
@@ -182,6 +346,132 @@ object Connection {
       this
     }
 
+    def data: Iterable[KeyVal] = new Iterable[KeyVal] {
+      override def iterator: Iterator[KeyVal] = new Iterator[KeyVal] {
+        private val it = asJsoup.data().iterator()
+
+        override def hasNext: Boolean = it.hasNext
+
+        override def next(): KeyVal = KeyVal(it.next())
+      }
+    }
+
+    def data(keyval: KeyVal): Request.this.type = {
+      asJsoup.data(keyval.asJsoup)
+      this
+    }
+
+    def requestBody: String = asJsoup.requestBody()
+
+    def requestBody_=(body: String): Unit = asJsoup.requestBody(body)
+
+    def requestBody(body: String): Request.this.type = {
+      asJsoup.requestBody(body)
+      this
+    }
+
+    def parser: Parser = Parser(asJsoup.parser)
+
+    def parser_=(parser: Parser): Unit = asJsoup.parser(parser.asJsoup)
+
+    def parser(parser: Parser): Request.this.type = {
+      asJsoup.parser(parser.asJsoup)
+      this
+    }
+
+    def postDataCharset: String = asJsoup.postDataCharset()
+
+    def postDataCharset_=(charset: String): Unit = asJsoup.postDataCharset(charset)
+
+    def postDataCharset(charset: String): Request.this.type = {
+      asJsoup.postDataCharset(charset)
+      this
+    }
+  }
+
+  object Request {
+    @inline
+    def apply(request: jsoup.Connection.Request): Request = if (request == null) null else new Request(request)
+  }
+
+  final class Response private(override val asJsoup: jsoup.Connection.Response) extends Base(asJsoup) {
+    def statusCode: Int = asJsoup.statusCode()
+
+    def statusMessage: String = asJsoup.statusMessage()
+
+    def charset: String = asJsoup.charset()
+
+    def charset_=(charset: String): Unit = asJsoup.charset(charset)
+
+    def charset(charset: String): Response.this.type = {
+      asJsoup.charset(charset)
+      this
+    }
+
+    def contentType: String = asJsoup.contentType()
+
+    def parse: Document = asJsoup.parse().asSouper
+
+    def body: String = asJsoup.body()
+
+    def bodyAsBytes: Array[Byte] = asJsoup.bodyAsBytes()
+
+    def bufferUp: Response = new Response(asJsoup.bufferUp())
+
+    def bodyStream: BufferedInputStream = asJsoup.bodyStream()
+  }
+
+  object Response {
+    @inline
+    def apply(response: jsoup.Connection.Response): Response = new Response(response)
+  }
+
+  final class KeyVal private(val asJsoup: jsoup.Connection.KeyVal) {
+
+    def key: String = asJsoup.key()
+
+    def key_=(key: String): Unit = asJsoup.key(key)
+
+    def key(key: String): KeyVal.this.type = {
+      asJsoup.key(key)
+      this
+    }
+
+    def value: String = asJsoup.value()
+
+    def value_=(value: String): Unit = asJsoup.value(value)
+
+    def value(value: String): KeyVal.this.type = {
+      asJsoup.value(value)
+      this
+    }
+
+    def inputStream: InputStream = asJsoup.inputStream()
+
+    def inputStream_=(inputStream: InputStream): Unit = asJsoup.inputStream(inputStream)
+
+    def inputStream(inputStream: InputStream): KeyVal.this.type = {
+      asJsoup.inputStream(inputStream)
+      this
+    }
+
+    def hasInputStream: Boolean = asJsoup.hasInputStream
+
+    def contentType: String = asJsoup.contentType()
+
+    def contentType_=(contentType: String): Unit = asJsoup.contentType(contentType)
+
+    def contentType(contentType: String): KeyVal.this.type = {
+      asJsoup.contentType(contentType)
+      this
+    }
+
+    override def toString: String = asJsoup.toString
+  }
+
+  object KeyVal {
+    @inline
+    def apply(keyVal: jsoup.Connection.KeyVal): KeyVal = if (keyVal == null) null else new KeyVal(keyVal)
   }
 
 }

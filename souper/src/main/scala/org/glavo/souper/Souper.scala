@@ -10,7 +10,7 @@ object Souper {
   def parse(html: String, baseUri: String = "")(implicit parser: Parser): Document =
     Jsoup.parse(html, baseUri, parser.asJsoup).asSouper
 
-  def connect(url: String): Connection = Jsoup.connect(url)
+  def connect(url: String): Connection = Connection(Jsoup.connect(url))
 
   def parse(in: File, charsetName: String, baseUri: String): Document =
     Jsoup.parse(in, charsetName, baseUri).asSouper
