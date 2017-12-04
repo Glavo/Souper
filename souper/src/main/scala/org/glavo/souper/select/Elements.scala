@@ -1,5 +1,7 @@
 package org.glavo.souper.select
 
+import java.util
+
 import org.glavo.souper.nodes.Element
 import org.jsoup.{select => js}
 
@@ -7,6 +9,117 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element] {
+  def attr(attributeKey: String): String = asJsoup.attr(attributeKey)
+
+  def hasAttr(attributeKey: String): Boolean = asJsoup.hasAttr(attributeKey)
+
+  def eachAttr(attributeKey: String): mutable.Buffer[String] = asJsoup.eachAttr(attributeKey).asScala
+
+  def attr(attributeKey: String, attributeValue: String): Elements.this.type = {
+    asJsoup.attr(attributeKey, attributeValue)
+    this
+  }
+
+  def removeAttr(attributeKey: String): Elements.this.type = {
+    asJsoup.removeAttr(attributeKey)
+    this
+  }
+
+  def addClass(className: String): Elements.this.type = {
+    asJsoup.addClass(className)
+    this
+  }
+
+  def removeClass(className: String): Elements.this.type = {
+    asJsoup.removeClass(className)
+    this
+  }
+
+  def toggleClass(className: String): Elements.this.type = {
+    asJsoup.toggleClass(className)
+    this
+  }
+
+  def value: String = asJsoup.`val`()
+
+  def value_=(value: String): Unit = asJsoup.`val`(value)
+
+  def value(value: String): Elements.this.type = {
+    asJsoup.`val`(value)
+    this
+  }
+
+  def text: String = asJsoup.text()
+
+  def hasText: Boolean = asJsoup.hasText
+
+  def eachText: mutable.Buffer[String] = asJsoup.eachText().asScala
+
+  def html: String = asJsoup.html()
+
+  def outerHtml: String = asJsoup.outerHtml()
+
+  def tagName(tagName: String): Elements.this.type = {
+    asJsoup.tagName(tagName)
+    this
+  }
+
+  def prepend(html: String): Elements.this.type  = {
+    asJsoup.prepend(html)
+    this
+  }
+
+  def append(html: String): Elements.this.type  = {
+    asJsoup.append(html)
+    this
+  }
+
+  def before(html: String): Elements.this.type = {
+    asJsoup.before(html)
+    this
+  }
+
+  def after(html: String): Elements.this.type = {
+    asJsoup.after(html)
+    this
+  }
+
+  def wrap(html: String): Elements.this.type = {
+    asJsoup.wrap(html)
+    this
+  }
+
+  def unwrap(): Elements.this.type  ={
+    asJsoup.unwrap()
+    this
+  }
+
+  def empty(): Elements.this.type  ={
+    asJsoup.empty()
+    this
+  }
+
+  def remove(): Elements.this.type  ={
+    asJsoup.remove()
+    this
+  }
+
+  // filters
+
+  def select(query: String): Elements = Elements(asJsoup.select(query))
+
+  def not(query: String): Elements = Elements(asJsoup.not(query))
+
+  def eq(index: Int): Elements = Elements(asJsoup.eq(index))
+
+  def is(query: String): Boolean = asJsoup.is(query)
+
+  def next: Elements = Elements(asJsoup.next())
+
+  def next(query: String): Elements = Elements(asJsoup.next(query))
+
+  // Buffer functions
+
   override def apply(n: Int): Element = Element(asJsoup.get(n))
 
   override def update(n: Int, newelem: Element): Unit = asJsoup.set(n, newelem.asJsoup)
@@ -18,6 +131,11 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
     this
   }
 
+  def +=(html: String): Elements.this.type  = {
+    asJsoup.append(html)
+    this
+  }
+
   override def clear(): Unit = asJsoup.clear()
 
   override def +=:(elem: Element): Elements.this.type = {
@@ -25,9 +143,13 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
     this
   }
 
-  //noinspection NotImplementedCode
+  def +=:(html: String): Elements.this.type  = {
+    asJsoup.prepend(html)
+    this
+  }
+
   override def insertAll(n: Int, elems: Traversable[Element]): Unit =
-    asJsoup.addAll(n , elems.map(_.asJsoup).toVector.asJavaCollection)
+    asJsoup.addAll(n, elems.map(_.asJsoup).toVector.asJavaCollection)
 
   override def remove(n: Int): Element = Element(asJsoup.remove(n))
 
@@ -52,4 +174,18 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
 
 object Elements {
   def apply(elements: org.jsoup.select.Elements): Elements = new Elements(elements)
+
+  def apply(initialCapacity: Int): Elements = Elements(new js.Elements(initialCapacity))
+
+  def apply(elements: Element*): Elements = Elements(new js.Elements(new util.AbstractCollection[org.jsoup.nodes.Element] {
+    override def iterator(): util.Iterator[org.jsoup.nodes.Element] = new util.Iterator[org.jsoup.nodes.Element] {
+      private val it = elements.iterator
+
+      override def next(): org.jsoup.nodes.Element = it.next().asJsoup
+
+      override def hasNext: Boolean = it.hasNext
+    }
+
+    override def size(): Int = elements.size
+  }))
 }
