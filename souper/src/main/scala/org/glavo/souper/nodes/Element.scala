@@ -3,7 +3,7 @@ package org.glavo.souper.nodes
 import java.util
 
 import org.glavo.souper.parser.Tag
-import org.glavo.souper.select.Evaluator
+import org.glavo.souper.select.{Elements, Evaluator}
 import org.jsoup.{nodes => js}
 
 import scala.collection.{immutable, mutable}
@@ -11,7 +11,12 @@ import scala.collection.{immutable, mutable}
 class Element protected(override val asJsoup: js.Element) extends Node {
   def tagName: String = asJsoup.tagName()
 
-  def tagName(tagName: String): Element = Element(asJsoup.tagName(tagName))
+  def tagName_=(tagName: String): Unit = asJsoup.tagName(tagName)
+
+  def tagName(tagName: String): Element.this.type = {
+    asJsoup.tagName(tagName)
+    this
+  }
 
   def tag: Tag = Tag(asJsoup.tag)
 
@@ -19,18 +24,20 @@ class Element protected(override val asJsoup: js.Element) extends Node {
 
   def id: String = asJsoup.id()
 
-  def attr(attributeKey: String, attributeValue: Boolean): Element =
-    Element(asJsoup.attr(attributeKey, attributeValue))
+  def attr(attributeKey: String, attributeValue: Boolean): Element.this.type = {
+    asJsoup.attr(attributeKey, attributeValue)
+    this
+  }
 
   def dataset: mutable.Map[String, String] = Attributes(asJsoup.attributes()).dataset
 
   override final def parent: Element = Element(asJsoup.parent())
 
-  //todo def parents: Elements
+  def parents: Elements = Elements(asJsoup.parents())
 
   def child(index: Int): Element = Element(asJsoup.child(index))
 
-  //todo def children(): Elements
+  def children(): Elements = Elements(asJsoup.children())
 
   def textNodes: scala.collection.immutable.Seq[TextNode] = new immutable.Seq[TextNode] {
     private val list = asJsoup.textNodes()
@@ -64,7 +71,7 @@ class Element protected(override val asJsoup: js.Element) extends Node {
     }
   }
 
-  //todo def select(cssQuery: String): Elements
+  def select(cssQuery: String): Elements = Elements(asJsoup.select(cssQuery))
 
   def selectFirst(cssQuery: String): Element = Element(asJsoup.selectFirst(cssQuery))
 
@@ -158,7 +165,7 @@ class Element protected(override val asJsoup: js.Element) extends Node {
 
   def cssSelector: String = asJsoup.cssSelector()
 
-  //todo def siblingElements: Elements
+  def siblingElements: Elements = Elements(asJsoup.siblingElements())
 
   def nextElementSibling: Element = Element(asJsoup.nextElementSibling())
 
@@ -170,7 +177,34 @@ class Element protected(override val asJsoup: js.Element) extends Node {
 
   def lastElementSibling: Element = Element(asJsoup.lastElementSibling())
 
-  //todo : DOM type methods
+  // DOM type methods
+
+  def getElementsByTag(tagName: String): Elements = Elements(asJsoup.getElementsByTag(tagName))
+
+  def getElementById(id: String): Element = Element(asJsoup.getElementById(id))
+
+  def getElementsByClass(className: String): Elements = Elements(asJsoup.getElementsByClass(className))
+
+  def getElementsByAttribute(key: String): Elements = Elements(asJsoup.getElementsByAttribute(key))
+
+  def getElementsByAttributeStarting(keyPrefix: String): Elements =
+    Elements(asJsoup.getElementsByAttributeStarting(keyPrefix))
+
+  def getElementsByAttributeValue(key: String, value: String): Elements =
+    Elements(asJsoup.getElementsByAttributeValue(key, value))
+
+  def getElementsByAttributeValueNot(key: String, value: String): Elements =
+    Elements(asJsoup.getElementsByAttributeValueNot(key, value))
+
+  def getElementsByAttributeValueStarting(key: String, valuePrefix: String) =
+    Elements(asJsoup.getElementsByAttributeValueStarting(key, valuePrefix))
+
+  def getElementsByAttributeValueEnding(key: String, valueSuffix: String) =
+    Elements(asJsoup.getElementsByAttributeValueEnding(key, valueSuffix))
+
+  def getElementsByAttributeValueContaining(key: String, matcher: String): Elements =
+    Elements(asJsoup.getElementsByAttributeValueContaining(key, matcher))
+
 
 }
 

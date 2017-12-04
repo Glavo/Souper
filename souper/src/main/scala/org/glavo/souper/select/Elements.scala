@@ -2,7 +2,7 @@ package org.glavo.souper.select
 
 import java.util
 
-import org.glavo.souper.nodes.Element
+import org.glavo.souper.nodes.{Element, FormElement}
 import org.jsoup.{select => js}
 
 import scala.collection.JavaConverters._
@@ -64,12 +64,12 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
     this
   }
 
-  def prepend(html: String): Elements.this.type  = {
+  def prepend(html: String): Elements.this.type = {
     asJsoup.prepend(html)
     this
   }
 
-  def append(html: String): Elements.this.type  = {
+  def append(html: String): Elements.this.type = {
     asJsoup.append(html)
     this
   }
@@ -89,17 +89,17 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
     this
   }
 
-  def unwrap(): Elements.this.type  ={
+  def unwrap(): Elements.this.type = {
     asJsoup.unwrap()
     this
   }
 
-  def empty(): Elements.this.type  ={
+  def empty(): Elements.this.type = {
     asJsoup.empty()
     this
   }
 
-  def remove(): Elements.this.type  ={
+  def remove(): Elements.this.type = {
     asJsoup.remove()
     this
   }
@@ -118,6 +118,39 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
 
   def next(query: String): Elements = Elements(asJsoup.next(query))
 
+  def nextAll: Elements = Elements(asJsoup.nextAll())
+
+  def nextAll(query: String): Elements = Elements(asJsoup.nextAll(query))
+
+  def prev: Elements = Elements(asJsoup.prev())
+
+  def prev(query: String): Elements = Elements(asJsoup.prev(query))
+
+  def prevAll: Elements = Elements(asJsoup.prevAll())
+
+  def prevAll(query: String): Elements = Elements(asJsoup.prevAll(query))
+
+  def parents: Elements = Elements(asJsoup.parents())
+
+  override def head: Element = Element(asJsoup.first())
+
+  def first: Element = Element(asJsoup.first())
+
+  override def last: Element = Element(asJsoup.last())
+
+  def traverse(nodeVisitor: NodeVisitor): Elements.this.type = {
+    asJsoup.traverse(nodeVisitor)
+    this
+  }
+
+  def filter(nodeFilter: NodeFilter): Elements.this.type = {
+    asJsoup.filter(nodeFilter)
+    this
+  }
+
+  def forms: mutable.Buffer[FormElement] =
+    this.filter(_.isInstanceOf[FormElement]).asInstanceOf[mutable.Buffer[FormElement]]
+
   // Buffer functions
 
   override def apply(n: Int): Element = Element(asJsoup.get(n))
@@ -131,7 +164,7 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
     this
   }
 
-  def +=(html: String): Elements.this.type  = {
+  def +=(html: String): Elements.this.type = {
     asJsoup.append(html)
     this
   }
@@ -143,7 +176,7 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
     this
   }
 
-  def +=:(html: String): Elements.this.type  = {
+  def +=:(html: String): Elements.this.type = {
     asJsoup.prepend(html)
     this
   }
