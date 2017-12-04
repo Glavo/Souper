@@ -2,7 +2,7 @@ package org.glavo.souper.parser
 
 import org.jsoup.{parser => jp}
 
-final class Tag(val asJsoup: jp.Tag) extends AnyVal {
+final class Tag private(val asJsoup: jp.Tag) extends AnyVal {
   @inline
   def name: String = asJsoup.getName
 
