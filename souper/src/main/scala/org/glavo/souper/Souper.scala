@@ -5,8 +5,10 @@ import java.net.URL
 
 import org.glavo.souper.nodes._
 import org.glavo.souper.parser.Parser
+import org.glavo.souper.safety.Whitelist
 import org.jsoup.Jsoup
 
+/** The core public access point to the souper functionality. */
 object Souper {
   def parse(html: String, baseUri: String = "")(implicit parser: Parser): Document =
     Jsoup.parse(html, baseUri, parser.asJsoup).asSouper
@@ -26,4 +28,14 @@ object Souper {
     Jsoup.parseBodyFragment(bodyHtml, baseUri).asSouper
 
   def parse(url: URL, timeoutMillis: Int): Document = Jsoup.parse(url, timeoutMillis).asSouper
+
+  def clean(bodyHtml: String, baseUri: String, whitelist: Whitelist): String = Jsoup.clean(bodyHtml, baseUri, whitelist)
+
+  def clean(bodyHtml: String, whitelist: Whitelist): String = Jsoup.clean(bodyHtml, whitelist)
+
+  def clean(bodyHtml: String, baseUri: String, whitelist: Whitelist, outputSettings: Document.OutputSettings): String =
+    Jsoup.clean(bodyHtml, baseUri, whitelist, outputSettings)
+
+  def isValid(bodyHtml: String, whitelist: Whitelist): Boolean =
+    Jsoup.isValid(bodyHtml, whitelist)
 }
