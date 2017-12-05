@@ -9,9 +9,9 @@ object ListLinks {
     val url = args(0)
     println(s"Fetching $url...")
     val doc = Souper connect url get()
-    val links = doc select "a[href]"
-    val media = doc select "[src]"
-    val imports = doc select "link[href]"
+    val links = doc css "a[href]"
+    val media = doc css "[src]"
+    val imports = doc css "link[href]"
 
     println(s"\nMedia: (${media.size})")
     media.foreach {

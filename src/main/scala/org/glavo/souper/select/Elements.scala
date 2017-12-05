@@ -106,7 +106,13 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
 
   // filters
 
-  def select(query: String): Elements = Elements(asJsoup.select(query))
+  def \(that: String): Elements = {
+    val elements = Elements()
+    this.foreach(elem => elements ++= (elem \ that))
+    elements
+  }
+
+  def css(query: String): Elements = Elements(asJsoup.select(query))
 
   def not(query: String): Elements = Elements(asJsoup.not(query))
 
@@ -152,6 +158,12 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
     this.filter(_.isInstanceOf[FormElement]).asInstanceOf[mutable.Buffer[FormElement]]
 
   // Buffer functions
+
+  override def filter(p: Element => Boolean): Elements = {
+    val elements = Elements()
+    this.foreach(elem => if(p(elem)) elements += elem)
+    elements
+  }
 
   override def apply(n: Int): Element = Element(asJsoup.get(n))
 

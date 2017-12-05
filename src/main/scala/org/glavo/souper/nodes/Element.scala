@@ -4,7 +4,7 @@ import java.util
 import java.util.regex.Pattern
 
 import org.glavo.souper.parser.Tag
-import org.glavo.souper.select.{Elements, Evaluator}
+import org.glavo.souper.select.{Elements, Evaluator, Selector}
 import org.jetbrains.annotations.{Contract, NotNull}
 import org.jsoup.{nodes => jn}
 
@@ -96,11 +96,34 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
 
   override final def parent: Element = Element(asJsoup.parent())
 
-  def parents: Elements = Elements(asJsoup.parents())
+  /** Get this element's parent and ancestors, up to the document root.
+    *
+    * @return this element's stack of parents, closest first.
+    */
+  @NotNull
+  @inline
+  def parents = Elements(asJsoup.parents())
 
-  def child(index: Int): Element = Element(asJsoup.child(index))
+  /** Get a child element of this element, by its 0-based index number.
+    *
+    * Note that an element can have both mixed Nodes and Elements as children. This method inspects
+    * a filtered list of children that are elements, and the index is based on that filtered list.
+    *
+    * @param index the index number of the element to retrieve
+    * @return the child element, if it exists, otherwise throws an `IndexOutOfBoundsException`
+    * @see `childNode(int)`
+    */
+  @inline
+  def child(index: Int) = Element(asJsoup.child(index))
 
-  def children(): Elements = Elements(asJsoup.children())
+  /** Get this element's child elements.
+    *
+    * This is effectively a filter on `childNodes()` to get Element nodes.
+    *
+    * @return child elements. If this element has no children, returns an empty list.
+    * @see `childNodes()`
+    */
+  def children() = Elements(asJsoup.children())
 
   def textNodes: scala.collection.immutable.Seq[TextNode] = new immutable.Seq[TextNode] {
     private val list = asJsoup.textNodes()
@@ -134,13 +157,20 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
     }
   }
 
-  def select(cssQuery: String): Elements = Elements(asJsoup.select(cssQuery))
+  def select(query: String)(implicit selector: Selector): Elements = selector.select(query, this)
 
-  def selectFirst(cssQuery: String): Element = Element(asJsoup.selectFirst(cssQuery))
+  def \(that: String): Elements = that match {
+    case "*" => allElements
+    case _ => allElements \ that
+  }
+
+  def \@(attributeName: String): String = this.attr(attributeName)
+
+  def css(cssQuery: String): Elements = Elements(asJsoup.select(cssQuery))
 
   def is(cssQuery: String): Boolean = asJsoup.is(cssQuery)
 
-  def is(evaluator: Evaluator): Boolean = asJsoup.is(evaluator)
+  def is(evaluator: Evaluator): Boolean = asJsoup.is(evaluator.asJsoup)
 
   def appendChild(child: Node): Self = {
     asJsoup.appendChild(child.asJsoup)

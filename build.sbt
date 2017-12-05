@@ -1,12 +1,17 @@
-lazy val root = (project in file("."))
-  .aggregate(souper)
-  .settings(
-    autoScalaLibrary := false
-  )
+name := "Souper"
 
-lazy val souper = (project in file("souper"))
-  .settings(Common.common: _*)
-  .settings(
-    name := "Souper",
-    libraryDependencies += "org.jsoup" % "jsoup" % "1.11.2"
-  )
+organization := "org.glavo"
+
+version := "1.0.0"
+
+scalaVersion := "2.12.4"
+
+crossScalaVersions := Seq("2.11.11", "2.12.4")
+
+// https://mvnrepository.com/artifact/org.jetbrains/annotations
+libraryDependencies ++= Seq(
+  "org.jsoup" % "jsoup" % "1.11.2",
+  "org.jetbrains" % "annotations" % "15.0",
+  "com.novocode" % "junit-interface" % "0.11" % "test"
+)
+

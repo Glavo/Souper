@@ -8,6 +8,6 @@ object Wikipedia {
     val doc = Souper.connect("http://en.wikipedia.org/").get()
     println(doc.title)
 
-    doc select "#mp-itn b a" foreach (it => println(s"${it attr "title"}\n\t${it absUrl "href"}"))
+    doc css "#mp-itn b a" foreach (it => println(s"${it attr "title"}\n\t${it absUrl "href"}"))
   }
 }
