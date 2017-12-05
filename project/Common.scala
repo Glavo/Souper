@@ -6,6 +6,9 @@ object Common {
     scalaVersion := "2.12.4",
     version := "0.0.1",
     // https://mvnrepository.com/artifact/org.jetbrains/annotations
-    libraryDependencies += "org.jetbrains" % "annotations" % "15.0"
+    libraryDependencies ++= Seq(
+      "org.jetbrains" % "annotations" % "15.0",
+      "com.novocode" % "junit-interface" % "0.11" % "test"
+    )
   )
 }

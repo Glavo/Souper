@@ -5,6 +5,7 @@ import java.util.regex.Pattern
 
 import org.glavo.souper.parser.Tag
 import org.glavo.souper.select.{Elements, Evaluator}
+import org.jetbrains.annotations.{Contract, NotNull}
 import org.jsoup.{nodes => jn}
 
 import scala.collection.{immutable, mutable}
@@ -12,26 +13,85 @@ import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 
 class Element protected(override val asJsoup: jn.Element) extends Node {
+  /** Get the name of the tag for this element. E.g. `div`. */
+  @NotNull
+  @Contract(pure = true)
+  @inline
   def tagName: String = asJsoup.tagName()
 
-  def tagName_=(tagName: String): Unit = asJsoup.tagName(tagName)
+  /** Set the tag of this element.
+    *
+    * @param tagName new tag name for this element
+    */
+  @inline
+  def tagName_=(@NotNull tagName: String): Unit = asJsoup.tagName(tagName)
 
-  def tagName(tagName: String): Element.this.type = {
+  /** Change the tag of this element. For example, convert a `<span>` to a `<div>` with
+    * `el.tagName("div");`.
+    *
+    * @param tagName new tag name for this element
+    * @return this element, for chaining
+    */
+  @inline
+  def tagName(@NotNull tagName: String): Self = {
     asJsoup.tagName(tagName)
     this
   }
 
-  def tag: Tag = Tag(asJsoup.tag)
+  /** Get the Tag for this element. */
+  @NotNull
+  @Contract(pure = true)
+  @inline
+  def tag = Tag(asJsoup.tag)
 
+  /** Test if this element is a block-level element. (E.g. `<div> == true` or an inline element
+    * `<p> == false`).
+    *
+    * @return true if block, false if not (and thus inline)
+    */
+  @Contract(pure = true)
+  @inline
   def isBlock: Boolean = asJsoup.isBlock
 
+  /** Get the `id` attribute of this element.
+    *
+    * @return The id attribute, if present, or an empty string if not.
+    */
+  @NotNull
+  @Contract(pure = true)
+  @inline
   def id: String = asJsoup.id()
 
-  def attr(attributeKey: String, attributeValue: Boolean): Element.this.type = {
+  /** Set a boolean attribute value on this element. Setting to `true` sets the attribute value to "" and
+    * marks the attribute as boolean so no value is written out. Setting to `false` removes the attribute
+    * with the same key if it exists.
+    *
+    * @param attributeKey   the attribute key
+    * @param attributeValue the attribute value
+    * @return this element
+    */
+  @inline
+  def attr(@NotNull attributeKey: String, attributeValue: Boolean): Self = {
     asJsoup.attr(attributeKey, attributeValue)
     this
   }
 
+  /** Get this element's HTML5 custom data attributes. Each attribute in the element that has a key
+    * starting with "data-" is included the dataset.
+    *
+    * E.g., the element `<div data-package="jsoup" data-language="Java" class="group">...` has the dataset
+    * `package=jsoup, language=java`.
+    *
+    * This map is a filtered view of the element's attribute map. Changes to one map (add, remove, update) are reflected
+    * in the other map.
+    *
+    * You can find elements that have data attributes using the `[^data-]` attribute key prefix selector.
+    *
+    * @return a map of `key=value` custom data attributes.
+    */
+  @NotNull
+  @Contract(pure = true)
+  @inline
   def dataset: mutable.Map[String, String] = Attributes(asJsoup.attributes()).dataset
 
   override final def parent: Element = Element(asJsoup.parent())
@@ -82,22 +142,22 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
 
   def is(evaluator: Evaluator): Boolean = asJsoup.is(evaluator)
 
-  def appendChild(child: Node): Element.this.type = {
+  def appendChild(child: Node): Self = {
     asJsoup.appendChild(child.asJsoup)
     this
   }
 
-  def appendTo(parent: Element): Element.this.type = {
+  def appendTo(parent: Element): Self = {
     asJsoup.appendTo(parent.asJsoup)
     this
   }
 
-  def prependChild(child: Node): Element.this.type = {
+  def prependChild(child: Node): Self = {
     asJsoup.prependChild(child.asJsoup)
     this
   }
 
-  def insertChildren(index: Int, children: Iterable[Node]): Element.this.type = {
+  def insertChildren(index: Int, children: Iterable[Node]): Self = {
     asJsoup.insertChildren(index, new util.AbstractCollection[jn.Node] {
       override def iterator(): util.Iterator[jn.Node] = new util.Iterator[jn.Node] {
         private val it = children.iterator
@@ -114,44 +174,44 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
     this
   }
 
-  def insertChildren(index: Int, children: Node*): Element.this.type =
+  def insertChildren(index: Int, children: Node*): Self =
     insertChildren(index, children)
 
   def appendElement(tagName: String): Element = Element(asJsoup.appendElement(tagName))
 
   def prependElement(tagName: String): Element = Element(asJsoup.prependElement(tagName))
 
-  def appendText(text: String): Element.this.type = {
+  def appendText(text: String): Self = {
     asJsoup.appendText(text)
     this
   }
 
-  def prependText(text: String): Element.this.type = {
+  def prependText(text: String): Self = {
     asJsoup.appendText(text)
     this
   }
 
-  def +=(html: String): Element.this.type = {
+  def +=(html: String): Self = {
     asJsoup.append(html)
     this
   }
 
-  def append(html: String): Element.this.type = {
+  def append(html: String): Self = {
     asJsoup.append(html)
     this
   }
 
-  def +=:(html: String): Element.this.type = {
+  def +=:(html: String): Self = {
     asJsoup.prepend(html)
     this
   }
 
-  def prepend(html: String): Element.this.type = {
+  def prepend(html: String): Self = {
     asJsoup.prepend(html)
     this
   }
 
-  def empty(): Element.this.type = {
+  def empty(): Self = {
     asJsoup.empty()
     this
   }
@@ -248,7 +308,7 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
 
   def text_=(text: String): Unit = asJsoup.text(text)
 
-  def text(text: String): Element.this.type = {
+  def text(text: String): Self = {
     asJsoup.text(text)
     this
   }
@@ -267,24 +327,24 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
 
   def classNames_=(classNames: mutable.Set[String]): Unit = asJsoup.classNames(classNames.asJava)
 
-  def classNames(classNames: mutable.Set[String]): Element.this.type = {
+  def classNames(classNames: mutable.Set[String]): Self = {
     asJsoup.classNames(classNames.asJava)
     this
   }
 
   def hasClass(className: String): Boolean = asJsoup.hasClass(className)
 
-  def addClass(className: String): Element.this.type = {
+  def addClass(className: String): Self = {
     asJsoup.addClass(className)
     this
   }
 
-  def removeClass(className: String): Element.this.type = {
+  def removeClass(className: String): Self = {
     asJsoup.removeClass(className)
     this
   }
 
-  def toggleClass(className: String): Element.this.type = {
+  def toggleClass(className: String): Self = {
     asJsoup.toggleClass(className)
     this
   }
@@ -293,14 +353,14 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
 
   def value_=(value: String): Unit = asJsoup.`val`(value)
 
-  def value(value: String): Element.this.type = {
+  def value(value: String): Self = {
     asJsoup.`val`(value)
     this
   }
 
   def html: String = asJsoup.html()
 
-  def html(html: String): Element.this.type = {
+  def html(html: String): Self = {
     asJsoup.html(html)
     this
   }

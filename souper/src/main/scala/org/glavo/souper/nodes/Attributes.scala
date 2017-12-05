@@ -155,6 +155,7 @@ final class Attributes private(val asJsoup: jn.Attributes) extends Iterable[Attr
     *
     * @return map of custom data attributes.
     */
+  @NotNull
   @Contract(pure = true)
   @inline
   def dataset: mutable.Map[String, String] = asJsoup.dataset().asScala

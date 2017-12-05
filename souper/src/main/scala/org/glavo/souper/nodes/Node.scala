@@ -95,6 +95,32 @@ abstract class Node extends Cloneable {
   @inline
   def baseUri: String = asJsoup.baseUri()
 
+  /** Update the base URI of this node and all of its descendants. */
+  @inline
+  def baseUri_=(@NotNull baseUri: String): Unit = asJsoup.setBaseUri(baseUri)
+
+  /** Get an absolute URL from a URL attribute that may be relative (i.e. an `&lt;a href&gt;` or
+    * `&lt;img src&gt;`).
+    *
+    * E.g.: `String absUrl = linkEl.absUrl("href");`
+    *
+    * If the attribute value is already absolute (i.e. it starts with a protocol, like
+    * `http://` or `https://` etc), and it successfully parses as a URL, the attribute is
+    * returned directly. Otherwise, it is treated as a URL relative to the element's `baseUri`, and made
+    * absolute using that.
+    *
+    * As an alternate, you can use the `attr` method with the `abs:` prefix, e.g.:
+    * `String absUrl = linkEl.attr("abs:href");`
+    *
+    * @param attributeKey The attribute key
+    * @return An absolute URL if one could be made, or an empty string (not null) if the attribute was missing or
+    *         could not be made successfully into a URL.
+    * @see #attr
+    * @see [[java.net.URL(java.net.URL, String)]]
+    */
+  @inline
+  def absUrl(@NotNull attributeKey: String): String = asJsoup.absUrl(attributeKey)
+
   /** Get a child node by its 0-based index.
     *
     * @param index index of child node
@@ -395,4 +421,5 @@ object Node {
       override def next(): Node = Node(it.next())
     }
   }
+
 }
