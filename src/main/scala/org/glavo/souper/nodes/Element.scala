@@ -4,6 +4,7 @@ import java.util
 import java.util.regex.Pattern
 
 import org.glavo.souper.parser.Tag
+import org.glavo.souper.select.Selector.SelectorParseException
 import org.glavo.souper.select.{Elements, Evaluator, Selector}
 import org.jetbrains.annotations.{Contract, NotNull}
 import org.jsoup.{nodes => jn}
@@ -123,12 +124,36 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
     * @return child elements. If this element has no children, returns an empty list.
     * @see `childNodes()`
     */
-  def children() = Elements(asJsoup.children())
+  @NotNull
+  @Contract(pure = true)
+  @inline
+  def children = Elements(asJsoup.children())
 
+
+  /**
+    * Get this element's child text nodes. The list is unmodifiable but the text nodes may be manipulated.
+    *
+    * This is effectively a filter on `childNodes()` to get Text nodes.
+    *
+    * @return child text nodes. If this element has no text nodes, returns an
+    *         empty list.
+    *
+    *         For example, with the input HTML: <p>One <span>Two</span> Three <br> Four</p> with the `p` element selected:
+    *         <ul>
+    *         <li>`p.text()` = `"One Two Three Four"`</li>
+    *         <li>`p.ownText()` = `"One Three Four"`</li>
+    *         <li>`p.children()` = `Elements[<span>, <br>]`</li>
+    *         <li>`p.childNodes()` = `List<Node>["One ", <span>, " Three ", <br>, " Four"]`</li>
+    *         <li>`p.textNodes()} = { @code List<TextNode>["One ", " Three ", " Four"]`</li>
+    *         </ul>
+    */
+  @NotNull
+  @Contract(pure = true)
+  @inline
   def textNodes: scala.collection.immutable.Seq[TextNode] = new immutable.Seq[TextNode] {
     private val list = asJsoup.textNodes()
 
-    override def apply(idx: Int): TextNode = TextNode(list.get(idx))
+    override def apply(idx: Int) = TextNode(list.get(idx))
 
     override def length: Int = list.size()
 
@@ -137,14 +162,25 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
 
       override def hasNext: Boolean = it.hasNext
 
-      override def next(): TextNode = TextNode(it.next())
+      override def next() = TextNode(it.next())
     }
   }
 
+  /** Get this element's child data nodes. The list is unmodifiable but the data nodes may be manipulated.
+    *
+    * This is effectively a filter on `childNodes()` to get Data nodes.
+    *
+    * @return child data nodes. If this element has no data nodes, returns an
+    *         empty list.
+    * @see `data()`
+    */
+  @NotNull
+  @Contract(pure = true)
+  @inline
   def dataNodes: scala.collection.immutable.Seq[DataNode] = new immutable.Seq[DataNode] {
     private val list = asJsoup.dataNodes()
 
-    override def apply(idx: Int): DataNode = DataNode(list.get(idx))
+    override def apply(idx: Int) = DataNode(list.get(idx))
 
     override def length: Int = list.size()
 
@@ -153,11 +189,21 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
 
       override def hasNext: Boolean = it.hasNext
 
-      override def next(): DataNode = DataNode(it.next())
+      override def next() = DataNode(it.next())
     }
   }
 
-  def select(query: String)(implicit selector: Selector): Elements = selector.select(query, this)
+  /** Find elements matching selector.
+    *
+    * @param query selector
+    * @return matching elements, empty if none
+    * @throws SelectorParseException (unchecked) on an invalid query.
+    */
+  @NotNull
+  @Contract(pure = true)
+  @inline
+  @throws[SelectorParseException]
+  def select(@NotNull query: String)(implicit @NotNull selector: Selector): Elements = selector.select(query, this)
 
   def \(that: String): Elements = that match {
     case "*" => allElements
