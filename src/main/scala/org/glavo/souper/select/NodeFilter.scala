@@ -19,15 +19,15 @@ object NodeFilter {
   type FilterResult = FR
 
   object FilterResult {
-    val Continue = FR.CONTINUE
+    val Continue: FilterResult = FR.CONTINUE
 
-    val SkipChildren = FR.SKIP_CHILDREN
+    val SkipChildren: FilterResult = FR.SKIP_CHILDREN
 
-    val SkipEntirely = FR.SKIP_ENTIRELY
+    val SkipEntirely: FilterResult = FR.SKIP_ENTIRELY
 
-    val Remove = FR.REMOVE
+    val Remove: FilterResult = FR.REMOVE
 
-    val Stop = FR.STOP
+    val Stop: FilterResult = FR.STOP
   }
 
 }

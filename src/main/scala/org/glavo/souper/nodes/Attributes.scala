@@ -191,6 +191,9 @@ final class Attributes(val delegate: jn.Attributes) extends Iterable[Attribute] 
 
 object Attributes {
   @inline
+  def apply(asJsoup: jn.Attributes): Attributes = if (asJsoup == null) null else new Attributes(asJsoup)
+
+  @inline
   def apply(): Attributes = new Attributes(new jn.Attributes())
 
   @inline

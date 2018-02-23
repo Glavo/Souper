@@ -2,16 +2,16 @@ package org.glavo.souper
 
 import java.io.{BufferedInputStream, InputStream}
 import java.net.{Proxy, URL}
-import java.util
 
 import org.glavo.souper.nodes._
 import org.glavo.souper.parser.Parser
+import org.glavo.souper.util.{TransformationIterator, Transformer}
 import org.jsoup
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-final class Connection private(val delegate: jsoup.Connection) {
+final class Connection(val delegate: jsoup.Connection) {
   type Self = Connection.this.type
 
   def url(url: URL): Self = {
@@ -90,17 +90,7 @@ final class Connection private(val delegate: jsoup.Connection) {
   }
 
   def data(data: Iterable[Connection.KeyVal]): Self = {
-    delegate.data(new util.AbstractCollection[jsoup.Connection.KeyVal] {
-      override def iterator(): util.Iterator[jsoup.Connection.KeyVal] = new util.Iterator[jsoup.Connection.KeyVal] {
-        private val it = data.iterator
-
-        override def next(): jsoup.Connection.KeyVal = it.next().asJsoup
-
-        override def hasNext: Boolean = it.hasNext
-      }
-
-      override def size(): Int = data.size
-    })
+    delegate.data(data.view.map(_.delegate).asJavaCollection)
     this
   }
 
@@ -160,14 +150,14 @@ final class Connection private(val delegate: jsoup.Connection) {
   def request(): Connection.Request = Connection.Request(delegate.request())
 
   def request(request: Connection.Request): Self = {
-    delegate.request(request.asJsoup)
+    delegate.request(request.delegate)
     this
   }
 
   def response(): Connection.Response = Connection.Response(delegate.response())
 
   def response(response: Connection.Response): Self = {
-    delegate.response(response.asJsoup)
+    delegate.response(response.delegate)
     this
   }
 }
@@ -188,52 +178,52 @@ object Connection {
     val Trace: Connection.Method = org.jsoup.Connection.Method.TRACE
   }
 
-  class Base(val asJsoup: jsoup.Connection.Base[_]) {
-    def url: URL = asJsoup.url()
+  class Base(val delegate: jsoup.Connection.Base[_]) {
+    def url: URL = delegate.url()
 
-    def url_=(url: URL): Unit = asJsoup.url(url)
+    def url_=(url: URL): Unit = delegate.url(url)
 
     def url(url: URL): Base.this.type = {
-      asJsoup.url(url)
+      delegate.url(url)
       this
     }
 
-    def method: Method = asJsoup.method()
+    def method: Method = delegate.method()
 
-    def method_=(method: Method): Unit = asJsoup.method(method)
+    def method_=(method: Method): Unit = delegate.method(method)
 
     def method(method: Method): Base.this.type = {
-      asJsoup.method(method)
+      delegate.method(method)
       this
     }
 
-    def header(name: String): String = asJsoup.header(name)
+    def header(name: String): String = delegate.header(name)
 
-    def headers(name: String): mutable.Buffer[String] = asJsoup.headers(name).asScala
+    def headers(name: String): mutable.Buffer[String] = delegate.headers(name).asScala
 
     def header(name: String, value: String): Base.this.type = {
-      asJsoup.header(name, value)
+      delegate.header(name, value)
       this
     }
 
     def addHeader(name: String, value: String): Base.this.type = {
-      asJsoup.addHeader(name, value)
+      delegate.addHeader(name, value)
       this
     }
 
-    def hasHeader(name: String): Boolean = asJsoup.hasHeader(name)
+    def hasHeader(name: String): Boolean = delegate.hasHeader(name)
 
-    def hasHeaderWithValue(name: String, value: String): Boolean = asJsoup.hasHeaderWithValue(name, value)
+    def hasHeaderWithValue(name: String, value: String): Boolean = delegate.hasHeaderWithValue(name, value)
 
     def removeHeader(name: String): Base.this.type = {
-      asJsoup.removeHeader(name)
+      delegate.removeHeader(name)
       this
     }
 
-    def allHeaders: mutable.Map[String, String] = asJsoup.headers().asScala
+    def allHeaders: mutable.Map[String, String] = delegate.headers().asScala
 
     def multiHeaders: mutable.Map[String, mutable.Buffer[String]] = new mutable.Map[String, mutable.Buffer[String]] {
-      private val headers = asJsoup.multiHeaders()
+      private val headers = delegate.multiHeaders()
 
       override def +=(kv: (String, mutable.Buffer[String])): this.type = {
         headers.put(kv._1, kv._2.asJava)
@@ -249,33 +239,28 @@ object Connection {
         Option(headers.getOrDefault(key, null)).map(_.asScala)
       }
 
-      override def iterator: Iterator[(String, mutable.Buffer[String])] = new Iterator[(String, mutable.Buffer[String])] {
-        private val it = headers.entrySet().iterator()
-
-        override def hasNext: Boolean = it.hasNext
-
-        override def next(): (String, mutable.Buffer[String]) = {
-          val e = it.next()
-          (e.getKey, e.getValue.asScala)
-        }
-      }
+      override def iterator: Iterator[(String, mutable.Buffer[String])] =
+        TransformationIterator.fromJava[(String, mutable.Buffer[String]), java.util.Map.Entry[String, java.util.List[String]]](
+          headers.entrySet().iterator(),
+          it => (it.getKey, it.getValue.asScala)
+        )
     }
 
-    def cookie(name: String): String = asJsoup.cookie(name)
+    def cookie(name: String): String = delegate.cookie(name)
 
     def cookie(name: String, value: String): Base.this.type = {
-      asJsoup.cookie(name, value)
+      delegate.cookie(name, value)
       this
     }
 
-    def hasCookie(name: String): Boolean = asJsoup.hasCookie(name)
+    def hasCookie(name: String): Boolean = delegate.hasCookie(name)
 
     def removeCookie(name: String): Base.this.type = {
-      asJsoup.removeCookie(name)
+      delegate.removeCookie(name)
       this
     }
 
-    def cookies(): mutable.Map[String, String] = asJsoup.cookies().asScala
+    def cookies(): mutable.Map[String, String] = delegate.cookies().asScala
   }
 
   object Base {
@@ -283,108 +268,100 @@ object Connection {
     def apply(base: jsoup.Connection.Base[_]): Base = if (base == null) null else new Base(base)
   }
 
-  class Request private(override val asJsoup: jsoup.Connection.Request) extends Base(asJsoup) {
+  class Request(override val delegate: jsoup.Connection.Request) extends Base(delegate) {
 
-    def proxy: Proxy = asJsoup.proxy()
+    def proxy: Proxy = delegate.proxy()
 
     def proxy_=(proxy: Proxy): Unit =
-      asJsoup.proxy(proxy)
+      delegate.proxy(proxy)
 
     def proxy(proxy: Proxy): Request.this.type = {
-      asJsoup.proxy(proxy)
+      delegate.proxy(proxy)
       this
     }
 
     def proxy(host: String, port: Int): Request.this.type = {
-      asJsoup.proxy(host, port)
+      delegate.proxy(host, port)
       this
     }
 
-    def timeout: Int = asJsoup.timeout()
+    def timeout: Int = delegate.timeout()
 
-    def timeout_=(millis: Int): Unit = asJsoup.timeout(millis)
+    def timeout_=(millis: Int): Unit = delegate.timeout(millis)
 
     def timeout(millis: Int): Request.this.type = {
-      asJsoup.timeout(millis)
+      delegate.timeout(millis)
       this
     }
 
-    def maxBodySize: Int = asJsoup.maxBodySize()
+    def maxBodySize: Int = delegate.maxBodySize()
 
     def maxBodySize_=(bytes: Int): Unit =
-      asJsoup.maxBodySize(bytes)
+      delegate.maxBodySize(bytes)
 
     def maxBodySize(bytes: Int): Request.this.type = {
-      asJsoup.maxBodySize(bytes)
+      delegate.maxBodySize(bytes)
       this
     }
 
-    def followRedirects: Boolean = asJsoup.followRedirects()
+    def followRedirects: Boolean = delegate.followRedirects()
 
-    def followRedirects_=(followRedirects: Boolean): Unit = asJsoup.followRedirects(followRedirects)
+    def followRedirects_=(followRedirects: Boolean): Unit = delegate.followRedirects(followRedirects)
 
     def followRedirects(followRedirects: Boolean): Request.this.type = {
-      asJsoup.followRedirects(followRedirects)
+      delegate.followRedirects(followRedirects)
       this
     }
 
-    def ignoreHttpErrors: Boolean = asJsoup.ignoreHttpErrors()
+    def ignoreHttpErrors: Boolean = delegate.ignoreHttpErrors()
 
-    def ignoreHttpErrors_=(ignoreHttpErrors: Boolean): Unit = asJsoup.ignoreHttpErrors(ignoreHttpErrors)
+    def ignoreHttpErrors_=(ignoreHttpErrors: Boolean): Unit = delegate.ignoreHttpErrors(ignoreHttpErrors)
 
     def ignoreHttpErrors(ignoreHttpErrors: Boolean): Request.this.type = {
-      asJsoup.ignoreHttpErrors(ignoreHttpErrors)
+      delegate.ignoreHttpErrors(ignoreHttpErrors)
       this
     }
 
-    def ignoreContentType: Boolean = asJsoup.ignoreContentType()
+    def ignoreContentType: Boolean = delegate.ignoreContentType()
 
-    def ignoreContentType_=(ignoreContentType: Boolean): Unit = asJsoup.ignoreContentType(ignoreContentType)
+    def ignoreContentType_=(ignoreContentType: Boolean): Unit = delegate.ignoreContentType(ignoreContentType)
 
     def ignoreContentType(ignoreContentType: Boolean): Request.this.type = {
-      asJsoup.ignoreContentType(ignoreContentType)
+      delegate.ignoreContentType(ignoreContentType)
       this
     }
 
-    def data: Iterable[KeyVal] = new Iterable[KeyVal] {
-      override def iterator: Iterator[KeyVal] = new Iterator[KeyVal] {
-        private val it = asJsoup.data().iterator()
-
-        override def hasNext: Boolean = it.hasNext
-
-        override def next(): KeyVal = KeyVal(it.next())
-      }
-    }
+    def data: Iterable[KeyVal] = delegate.data().asScala.view.map(Connection.KeyVal.apply)
 
     def data(keyval: KeyVal): Request.this.type = {
-      asJsoup.data(keyval.asJsoup)
+      delegate.data(keyval.delegate)
       this
     }
 
-    def requestBody: String = asJsoup.requestBody()
+    def requestBody: String = delegate.requestBody()
 
-    def requestBody_=(body: String): Unit = asJsoup.requestBody(body)
+    def requestBody_=(body: String): Unit = delegate.requestBody(body)
 
     def requestBody(body: String): Request.this.type = {
-      asJsoup.requestBody(body)
+      delegate.requestBody(body)
       this
     }
 
-    def parser: Parser = Parser(asJsoup.parser)
+    def parser: Parser = Parser(delegate.parser)
 
-    def parser_=(parser: Parser): Unit = asJsoup.parser(parser.delegate)
+    def parser_=(parser: Parser): Unit = delegate.parser(parser.delegate)
 
     def parser(parser: Parser): Request.this.type = {
-      asJsoup.parser(parser.delegate)
+      delegate.parser(parser.delegate)
       this
     }
 
-    def postDataCharset: String = asJsoup.postDataCharset()
+    def postDataCharset: String = delegate.postDataCharset()
 
-    def postDataCharset_=(charset: String): Unit = asJsoup.postDataCharset(charset)
+    def postDataCharset_=(charset: String): Unit = delegate.postDataCharset(charset)
 
     def postDataCharset(charset: String): Request.this.type = {
-      asJsoup.postDataCharset(charset)
+      delegate.postDataCharset(charset)
       this
     }
   }
@@ -394,31 +371,31 @@ object Connection {
     def apply(request: jsoup.Connection.Request): Request = if (request == null) null else new Request(request)
   }
 
-  final class Response private(override val asJsoup: jsoup.Connection.Response) extends Base(asJsoup) {
-    def statusCode: Int = asJsoup.statusCode()
+  final class Response(override val delegate: jsoup.Connection.Response) extends Base(delegate) {
+    def statusCode: Int = delegate.statusCode()
 
-    def statusMessage: String = asJsoup.statusMessage()
+    def statusMessage: String = delegate.statusMessage()
 
-    def charset: String = asJsoup.charset()
+    def charset: String = delegate.charset()
 
-    def charset_=(charset: String): Unit = asJsoup.charset(charset)
+    def charset_=(charset: String): Unit = delegate.charset(charset)
 
     def charset(charset: String): Response.this.type = {
-      asJsoup.charset(charset)
+      delegate.charset(charset)
       this
     }
 
-    def contentType: String = asJsoup.contentType()
+    def contentType: String = delegate.contentType()
 
-    def parse: Document = nodes.Implicits.documentWrapper(asJsoup.parse())
+    def parse: Document = nodes.Implicits.documentWrapper(delegate.parse())
 
-    def body: String = asJsoup.body()
+    def body: String = delegate.body()
 
-    def bodyAsBytes: Array[Byte] = asJsoup.bodyAsBytes()
+    def bodyAsBytes: Array[Byte] = delegate.bodyAsBytes()
 
-    def bufferUp: Response = new Response(asJsoup.bufferUp())
+    def bufferUp: Response = new Response(delegate.bufferUp())
 
-    def bodyStream: BufferedInputStream = asJsoup.bodyStream()
+    def bodyStream: BufferedInputStream = delegate.bodyStream()
   }
 
   object Response {
@@ -426,47 +403,47 @@ object Connection {
     def apply(response: jsoup.Connection.Response): Response = new Response(response)
   }
 
-  final class KeyVal private(val asJsoup: jsoup.Connection.KeyVal) {
+  final class KeyVal(val delegate: jsoup.Connection.KeyVal) {
 
-    def key: String = asJsoup.key()
+    def key: String = delegate.key()
 
-    def key_=(key: String): Unit = asJsoup.key(key)
+    def key_=(key: String): Unit = delegate.key(key)
 
     def key(key: String): KeyVal.this.type = {
-      asJsoup.key(key)
+      delegate.key(key)
       this
     }
 
-    def value: String = asJsoup.value()
+    def value: String = delegate.value()
 
-    def value_=(value: String): Unit = asJsoup.value(value)
+    def value_=(value: String): Unit = delegate.value(value)
 
     def value(value: String): KeyVal.this.type = {
-      asJsoup.value(value)
+      delegate.value(value)
       this
     }
 
-    def inputStream: InputStream = asJsoup.inputStream()
+    def inputStream: InputStream = delegate.inputStream()
 
-    def inputStream_=(inputStream: InputStream): Unit = asJsoup.inputStream(inputStream)
+    def inputStream_=(inputStream: InputStream): Unit = delegate.inputStream(inputStream)
 
     def inputStream(inputStream: InputStream): KeyVal.this.type = {
-      asJsoup.inputStream(inputStream)
+      delegate.inputStream(inputStream)
       this
     }
 
-    def hasInputStream: Boolean = asJsoup.hasInputStream
+    def hasInputStream: Boolean = delegate.hasInputStream
 
-    def contentType: String = asJsoup.contentType()
+    def contentType: String = delegate.contentType()
 
-    def contentType_=(contentType: String): Unit = asJsoup.contentType(contentType)
+    def contentType_=(contentType: String): Unit = delegate.contentType(contentType)
 
     def contentType(contentType: String): KeyVal.this.type = {
-      asJsoup.contentType(contentType)
+      delegate.contentType(contentType)
       this
     }
 
-    override def toString: String = asJsoup.toString
+    override def toString: String = delegate.toString
   }
 
   object KeyVal {

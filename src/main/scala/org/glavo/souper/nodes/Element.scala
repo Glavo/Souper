@@ -6,6 +6,7 @@ import java.util.regex.Pattern
 import org.glavo.souper.parser.Tag
 import org.glavo.souper.select.Selector.SelectorParseException
 import org.glavo.souper.select.{Elements, Evaluator, Selector}
+import org.glavo.souper.util.TransformationImmutableSeq
 import org.jetbrains.annotations.{Contract, NotNull}
 import org.jsoup.{nodes => jn}
 
@@ -177,21 +178,8 @@ class Element(override val delegate: jn.Element) extends Node {
   @NotNull
   @Contract(pure = true)
   @inline
-  def dataNodes: scala.collection.immutable.Seq[DataNode] = new immutable.Seq[DataNode] {
-    private val list = delegate.dataNodes()
-
-    override def apply(idx: Int) = new DataNode(list.get(idx))
-
-    override def length: Int = list.size()
-
-    override def iterator: Iterator[DataNode] = new Iterator[DataNode] {
-      private val it = list.iterator()
-
-      override def hasNext: Boolean = it.hasNext
-
-      override def next() = DataNode(it.next())
-    }
-  }
+  def dataNodes: scala.collection.immutable.Seq[DataNode] =
+    TransformationImmutableSeq.fromJavaList[DataNode, jn.DataNode](delegate.dataNodes(), DataNode.apply)
 
   /** Find elements matching selector.
     *
@@ -216,7 +204,7 @@ class Element(override val delegate: jn.Element) extends Node {
 
   def is(cssQuery: String): Boolean = delegate.is(cssQuery)
 
-  def is(evaluator: Evaluator): Boolean = delegate.is(evaluator.asJsoup)
+  def is(evaluator: Evaluator): Boolean = delegate.is(evaluator.delegate)
 
   def appendChild(child: Node): Self = {
     delegate.appendChild(child.delegate)
@@ -234,19 +222,7 @@ class Element(override val delegate: jn.Element) extends Node {
   }
 
   def insertChildren(index: Int, children: Iterable[Node]): Self = {
-    delegate.insertChildren(index, new util.AbstractCollection[jn.Node] {
-      override def iterator(): util.Iterator[jn.Node] = new util.Iterator[jn.Node] {
-        private val it = children.iterator
-
-        override def next(): jn.Node = it.next().delegate
-
-        override def hasNext: Boolean = it.hasNext
-      }
-
-      override lazy val size: Int = {
-        children.size
-      }
-    })
+    delegate.insertChildren(index, children.view.map(_.delegate).asJavaCollection)
     this
   }
 

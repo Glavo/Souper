@@ -1,8 +1,11 @@
 package org.glavo.souper.select
 
 import scala.collection.JavaConverters._
+
 import org.glavo.souper.nodes._
 import org.glavo.souper.select.Selector.SelectorParseException
+import org.glavo.souper.Implicits._
+
 import org.jsoup.select.{Collector => JCollector, Selector => JSelector}
 
 trait Selector {
@@ -29,7 +32,7 @@ object Selector {
     selector.select(query, root)
 
   def select(evaluator: Evaluator, root: Element): Elements =
-    JCollector.collect(evaluator.asJsoup, root.delegate).asSouper
+    JCollector.collect(evaluator.delegate, root.delegate)
 }
 
 object CssSelector extends Selector {
@@ -42,8 +45,8 @@ object CssSelector extends Selector {
     * @return matching elements, empty if none
     * @throws SelectorParseException (unchecked) on an invalid CSS query.
     */
-  def select(query: String, root: Element): Elements = JSelector.select(query, root.delegate).asSouper
+  def select(query: String, root: Element): Elements = JSelector.select(query, root.delegate)
 
   override def select(query: String, roots: Iterable[Element]): Elements =
-    JSelector.select(query, roots.map(_.delegate).asJava).asSouper
+    JSelector.select(query, roots.map(_.delegate).asJava)
 }

@@ -31,13 +31,13 @@ object Souper {
 
   def parse(url: URL, timeoutMillis: Int): Document = Jsoup.parse(url, timeoutMillis)
 
-  def clean(bodyHtml: String, baseUri: String, whitelist: Whitelist): String = Jsoup.clean(bodyHtml, baseUri, whitelist)
+  def clean(bodyHtml: String, baseUri: String, whitelist: Whitelist): String = Jsoup.clean(bodyHtml, baseUri, whitelist.delegate)
 
-  def clean(bodyHtml: String, whitelist: Whitelist): String = Jsoup.clean(bodyHtml, whitelist)
+  def clean(bodyHtml: String, whitelist: Whitelist): String = Jsoup.clean(bodyHtml, whitelist.delegate)
 
   def clean(bodyHtml: String, baseUri: String, whitelist: Whitelist, outputSettings: Document.OutputSettings): String =
-    Jsoup.clean(bodyHtml, baseUri, whitelist, outputSettings)
+    Jsoup.clean(bodyHtml, baseUri, whitelist.delegate, outputSettings)
 
   def isValid(bodyHtml: String, whitelist: Whitelist): Boolean =
-    Jsoup.isValid(bodyHtml, whitelist)
+    Jsoup.isValid(bodyHtml, whitelist.delegate)
 }

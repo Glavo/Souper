@@ -29,7 +29,7 @@ class TransformationBuffer[E, F](val source: mutable.Buffer[F], val transformer:
 
   override def remove(n: Int): E = transformer.transformB(source.remove(n))
 
-  override def iterator: Iterator[E] = new TransformationIterator[E, F](source.iterator, transformer)
+  override def iterator: Iterator[E] = new TransformationIterator[E, F](source.iterator, transformer.transformB)
 }
 
 object TransformationBuffer {

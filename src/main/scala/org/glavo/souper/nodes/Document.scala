@@ -31,7 +31,7 @@ final class Document(override val delegate: jn.Document) extends Element(delegat
 
   def updateMetaCharsetElement_=(update: Boolean): Unit = delegate.updateMetaCharsetElement(update)
 
-  override def clone(): Document = Document(delegate.clone())
+  override def clone(): Document = new Document(delegate.clone())
 
   def outputSettings: Document.OutputSettings = delegate.outputSettings()
 
@@ -66,7 +66,7 @@ object Document {
 
   def apply(doc: jn.Document): Document = if(doc == null) null else new Document(doc)
 
-  def apply(baseUri: String): Document = new Document(new jn.Document(baseUri))
+  def apply(baseUri: String): Document = Document(new jn.Document(baseUri))
 
   def createShell(baseUri: String): Document = Document(jn.Document.createShell(baseUri))
 }

@@ -1,106 +1,107 @@
 package org.glavo.souper.select
 
-import java.util
-
 import org.glavo.souper.nodes.{Element, FormElement}
-import org.jsoup.{select => js}
+import org.glavo.souper.util.TransformationIterator
+import org.jsoup.{select => js, nodes => jn}
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element] {
-  def attr(attributeKey: String): String = asJsoup.attr(attributeKey)
+class Elements private(val delegate: js.Elements)
+  extends mutable.Buffer[Element]
+    with org.glavo.souper.SouperDelegate[js.Elements] {
+  def attr(attributeKey: String): String = delegate.attr(attributeKey)
 
-  def hasAttr(attributeKey: String): Boolean = asJsoup.hasAttr(attributeKey)
+  def hasAttr(attributeKey: String): Boolean = delegate.hasAttr(attributeKey)
 
-  def eachAttr(attributeKey: String): mutable.Buffer[String] = asJsoup.eachAttr(attributeKey).asScala
+  def eachAttr(attributeKey: String): mutable.Buffer[String] = delegate.eachAttr(attributeKey).asScala
 
   def attr(attributeKey: String, attributeValue: String): Elements.this.type = {
-    asJsoup.attr(attributeKey, attributeValue)
+    delegate.attr(attributeKey, attributeValue)
     this
   }
 
   def removeAttr(attributeKey: String): Elements.this.type = {
-    asJsoup.removeAttr(attributeKey)
+    delegate.removeAttr(attributeKey)
     this
   }
 
   def addClass(className: String): Elements.this.type = {
-    asJsoup.addClass(className)
+    delegate.addClass(className)
     this
   }
 
   def removeClass(className: String): Elements.this.type = {
-    asJsoup.removeClass(className)
+    delegate.removeClass(className)
     this
   }
 
   def toggleClass(className: String): Elements.this.type = {
-    asJsoup.toggleClass(className)
+    delegate.toggleClass(className)
     this
   }
 
-  def value: String = asJsoup.`val`()
+  def value: String = delegate.`val`()
 
-  def value_=(value: String): Unit = asJsoup.`val`(value)
+  def value_=(value: String): Unit = delegate.`val`(value)
 
   def value(value: String): Elements.this.type = {
-    asJsoup.`val`(value)
+    delegate.`val`(value)
     this
   }
 
-  def text: String = asJsoup.text()
+  def text: String = delegate.text()
 
-  def hasText: Boolean = asJsoup.hasText
+  def hasText: Boolean = delegate.hasText
 
-  def eachText: mutable.Buffer[String] = asJsoup.eachText().asScala
+  def eachText: mutable.Buffer[String] = delegate.eachText().asScala
 
-  def html: String = asJsoup.html()
+  def html: String = delegate.html()
 
-  def outerHtml: String = asJsoup.outerHtml()
+  def outerHtml: String = delegate.outerHtml()
 
   def tagName(tagName: String): Elements.this.type = {
-    asJsoup.tagName(tagName)
+    delegate.tagName(tagName)
     this
   }
 
   def prepend(html: String): Elements.this.type = {
-    asJsoup.prepend(html)
+    delegate.prepend(html)
     this
   }
 
   def append(html: String): Elements.this.type = {
-    asJsoup.append(html)
+    delegate.append(html)
     this
   }
 
   def before(html: String): Elements.this.type = {
-    asJsoup.before(html)
+    delegate.before(html)
     this
   }
 
   def after(html: String): Elements.this.type = {
-    asJsoup.after(html)
+    delegate.after(html)
     this
   }
 
   def wrap(html: String): Elements.this.type = {
-    asJsoup.wrap(html)
+    delegate.wrap(html)
     this
   }
 
   def unwrap(): Elements.this.type = {
-    asJsoup.unwrap()
+    delegate.unwrap()
     this
   }
 
   def empty(): Elements.this.type = {
-    asJsoup.empty()
+    delegate.empty()
     this
   }
 
   def remove(): Elements.this.type = {
-    asJsoup.remove()
+    delegate.remove()
     this
   }
 
@@ -112,45 +113,45 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
     elements
   }
 
-  def css(query: String): Elements = Elements(asJsoup.select(query))
+  def css(query: String): Elements = Elements(delegate.select(query))
 
-  def not(query: String): Elements = Elements(asJsoup.not(query))
+  def not(query: String): Elements = Elements(delegate.not(query))
 
-  def eq(index: Int): Elements = Elements(asJsoup.eq(index))
+  def eq(index: Int): Elements = Elements(delegate.eq(index))
 
-  def is(query: String): Boolean = asJsoup.is(query)
+  def is(query: String): Boolean = delegate.is(query)
 
-  def next: Elements = Elements(asJsoup.next())
+  def next: Elements = Elements(delegate.next())
 
-  def next(query: String): Elements = Elements(asJsoup.next(query))
+  def next(query: String): Elements = Elements(delegate.next(query))
 
-  def nextAll: Elements = Elements(asJsoup.nextAll())
+  def nextAll: Elements = Elements(delegate.nextAll())
 
-  def nextAll(query: String): Elements = Elements(asJsoup.nextAll(query))
+  def nextAll(query: String): Elements = Elements(delegate.nextAll(query))
 
-  def prev: Elements = Elements(asJsoup.prev())
+  def prev: Elements = Elements(delegate.prev())
 
-  def prev(query: String): Elements = Elements(asJsoup.prev(query))
+  def prev(query: String): Elements = Elements(delegate.prev(query))
 
-  def prevAll: Elements = Elements(asJsoup.prevAll())
+  def prevAll: Elements = Elements(delegate.prevAll())
 
-  def prevAll(query: String): Elements = Elements(asJsoup.prevAll(query))
+  def prevAll(query: String): Elements = Elements(delegate.prevAll(query))
 
-  def parents: Elements = Elements(asJsoup.parents())
+  def parents: Elements = Elements(delegate.parents())
 
-  override def head: Element = Element(asJsoup.first())
+  override def head: Element = Element(delegate.first())
 
-  def first: Element = Element(asJsoup.first())
+  def first: Element = Element(delegate.first())
 
-  override def last: Element = Element(asJsoup.last())
+  override def last: Element = Element(delegate.last())
 
   def traverse(nodeVisitor: NodeVisitor): Elements.this.type = {
-    asJsoup.traverse(nodeVisitor)
+    delegate.traverse(nodeVisitor)
     this
   }
 
   def filter(nodeFilter: NodeFilter): Elements.this.type = {
-    asJsoup.filter(nodeFilter)
+    delegate.filter(nodeFilter)
     this
   }
 
@@ -161,76 +162,61 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
 
   override def filter(p: Element => Boolean): Elements = {
     val elements = Elements()
-    this.foreach(elem => if(p(elem)) elements += elem)
+    this.foreach(elem => if (p(elem)) elements += elem)
     elements
   }
 
-  override def apply(n: Int): Element = Element(asJsoup.get(n))
+  override def apply(n: Int): Element = Element(delegate.get(n))
 
-  override def update(n: Int, newelem: Element): Unit = asJsoup.set(n, newelem.delegate)
+  override def update(n: Int, newelem: Element): Unit = delegate.set(n, newelem.delegate)
 
-  override def length: Int = asJsoup.size()
+  override def length: Int = delegate.size()
 
   override def +=(elem: Element): Elements.this.type = {
-    asJsoup.add(elem.delegate)
+    delegate.add(elem.delegate)
     this
   }
 
   def +=(html: String): Elements.this.type = {
-    asJsoup.append(html)
+    delegate.append(html)
     this
   }
 
-  override def clear(): Unit = asJsoup.clear()
+  override def clear(): Unit = delegate.clear()
 
   override def +=:(elem: Element): Elements.this.type = {
-    asJsoup.add(0, elem.delegate)
+    delegate.add(0, elem.delegate)
     this
   }
 
   def +=:(html: String): Elements.this.type = {
-    asJsoup.prepend(html)
+    delegate.prepend(html)
     this
   }
 
   override def insertAll(n: Int, elems: Traversable[Element]): Unit =
-    asJsoup.addAll(n, elems.map(_.delegate).toVector.asJavaCollection)
+    delegate.addAll(n, elems.map(_.delegate).toVector.asJavaCollection)
 
-  override def remove(n: Int): Element = Element(asJsoup.remove(n))
+  override def remove(n: Int): Element = Element(delegate.remove(n))
 
 
-  override def iterator: Iterator[Element] = new Iterator[Element] {
-    private val it = asJsoup.iterator()
+  override def iterator: Iterator[Element] =
+    TransformationIterator.fromJava[Element, jn.Element](delegate.iterator(), Element.apply)
 
-    override def hasNext: Boolean = it.hasNext
+  override def clone(): Elements = Elements(delegate.clone())
 
-    override def next(): Element = Element(it.next())
-  }
-
-  override def clone(): Elements = Elements(asJsoup.clone())
-
-  override def hashCode(): Int = asJsoup.hashCode()
+  override def hashCode(): Int = delegate.hashCode()
 
   override def equals(that: Any): Boolean =
-    that.isInstanceOf[Elements] && that.asInstanceOf[Elements].asJsoup == asJsoup
+    that.isInstanceOf[Elements] && that.asInstanceOf[Elements].delegate == delegate
 
-  override def toString(): String = asJsoup.toString
+  override def toString(): String = delegate.toString
 }
 
 object Elements {
-  def apply(elements: org.jsoup.select.Elements): Elements = new Elements(elements)
+  def apply(elements: org.jsoup.select.Elements): Elements = if (elements != null) new Elements(elements) else null
 
   def apply(initialCapacity: Int): Elements = Elements(new js.Elements(initialCapacity))
 
-  def apply(elements: Element*): Elements = Elements(new js.Elements(new util.AbstractCollection[org.jsoup.nodes.Element] {
-    override def iterator(): util.Iterator[org.jsoup.nodes.Element] = new util.Iterator[org.jsoup.nodes.Element] {
-      private val it = elements.iterator
-
-      override def next(): org.jsoup.nodes.Element = it.next().delegate
-
-      override def hasNext: Boolean = it.hasNext
-    }
-
-    override def size(): Int = elements.size
-  }))
+  def apply(elements: Element*): Elements = Elements(new js.Elements(elements.view.map(_.delegate).asJavaCollection))
 }

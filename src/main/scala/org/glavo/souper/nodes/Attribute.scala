@@ -4,7 +4,7 @@ import org.jetbrains.annotations.{NotNull, Nullable, Contract}
 import org.jsoup.{nodes => jn}
 
 /** A single key + value attribute. (Only used for presentation.)
-  * @constructor  Create a Attribute from jsoup Attribute.
+  * @constructor  Create a attribute from jsoup attribute.
   */
 final class Attribute(val delegate: jn.Attribute) extends Product2[String, String] with Cloneable {
   /** Return the attribute key. */
@@ -48,6 +48,8 @@ final class Attribute(val delegate: jn.Attribute) extends Product2[String, Strin
 }
 
 object Attribute {
+  def apply(attribute: jn.Attribute): Attribute = new Attribute(attribute)
+
   /** Create a new attribute from unencoded (raw) key and value.
     *
     * @param key    attribute key; case is preserved.
