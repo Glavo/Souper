@@ -11,7 +11,6 @@ crossScalaVersions := Seq("2.11.11", "2.12.4")
 // https://mvnrepository.com/artifact/org.jetbrains/annotations
 libraryDependencies ++= Seq(
   "org.jsoup" % "jsoup" % "1.11.2",
-  "org.jetbrains" % "annotations" % "15.0",
-  "com.novocode" % "junit-interface" % "0.11" % "test"
+  "org.jetbrains" % "annotations" % "15.0"
 )
 

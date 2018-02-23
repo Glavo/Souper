@@ -2,5 +2,8 @@
 
 ![](https://travis-ci.org/Glavo/Souper.svg?branch=master)
 
-Souper 是 Jsoup 的一个 Scala 包装器。
+Souper is a scala wrapper of jsoup.
+
+## Getting Started
+//todo
 
