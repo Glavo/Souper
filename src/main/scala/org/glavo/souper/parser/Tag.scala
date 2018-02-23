@@ -2,12 +2,12 @@ package org.glavo.souper.parser
 
 import org.jsoup.{parser => jp}
 
-final class Tag private(val asJsoup: jp.Tag) extends AnyVal {
+final class Tag(val delegate: jp.Tag) extends AnyVal {
   @inline
-  def name: String = asJsoup.getName
+  def name: String = delegate.getName
 
   @inline
-  override def toString: String = asJsoup.toString
+  override def toString: String = delegate.toString
 }
 
 object Tag {

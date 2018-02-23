@@ -1,6 +1,5 @@
 package org.glavo.souper.nodes
 
-import org.glavo.souper.SerializationException
 import org.jetbrains.annotations.{Contract, NotNull}
 import org.jsoup.{nodes => jn}
 
@@ -17,12 +16,12 @@ import scala.collection.mutable
   * normalized to lower-case on parsing. That means you should use
   * lower-case strings when referring to attributes by name.
   */
-final class Attributes private(val asJsoup: jn.Attributes) extends Iterable[Attribute] {
+final class Attributes(val delegate: jn.Attributes) extends Iterable[Attribute] {
 
   @NotNull
   @Contract(pure = true)
   @inline
-  def apply(@NotNull key: String): String = asJsoup.get(key)
+  def apply(@NotNull key: String): String = delegate.get(key)
 
   /** Get an attribute value by key.
     *
@@ -33,7 +32,7 @@ final class Attributes private(val asJsoup: jn.Attributes) extends Iterable[Attr
   @NotNull
   @Contract(pure = true)
   @inline
-  def get(@NotNull key: String): String = asJsoup.get(key)
+  def get(@NotNull key: String): String = delegate.get(key)
 
   /** Get an attribute's value by case-insensitive key
     *
@@ -43,11 +42,11 @@ final class Attributes private(val asJsoup: jn.Attributes) extends Iterable[Attr
   @NotNull
   @Contract(pure = true)
   @inline
-  def getIgnoreCase(@NotNull key: String): String = asJsoup.getIgnoreCase(key)
+  def getIgnoreCase(@NotNull key: String): String = delegate.getIgnoreCase(key)
 
   @inline
   def +=(@NotNull key: String, value: String): Attributes.this.type = {
-    asJsoup.put(key, value)
+    delegate.put(key, value)
     this
   }
 
@@ -59,13 +58,13 @@ final class Attributes private(val asJsoup: jn.Attributes) extends Iterable[Attr
     */
   @inline
   def put(@NotNull key: String, value: String): Attributes.this.type = {
-    asJsoup.put(key, value)
+    delegate.put(key, value)
     this
   }
 
   @inline
   def +=(key: String, value: Boolean): Attributes.this.type = {
-    asJsoup.put(key, value)
+    delegate.put(key, value)
     this
   }
 
@@ -77,13 +76,13 @@ final class Attributes private(val asJsoup: jn.Attributes) extends Iterable[Attr
     */
   @inline
   def put(@NotNull key: String, value: Boolean): Attributes.this.type = {
-    asJsoup.put(key, value)
+    delegate.put(key, value)
     this
   }
 
   @inline
   def +=(@NotNull attribute: Attribute): Attributes.this.type = {
-    asJsoup.put(attribute.asJsoup)
+    delegate.put(attribute.delegate)
     this
   }
 
@@ -94,26 +93,26 @@ final class Attributes private(val asJsoup: jn.Attributes) extends Iterable[Attr
     */
   @inline
   def put(@NotNull attribute: Attribute): Attributes.this.type = {
-    asJsoup.put(attribute.asJsoup)
+    delegate.put(attribute.delegate)
     this
   }
 
   @inline
-  def -=(@NotNull key: String): Unit = asJsoup.remove(key)
+  def -=(@NotNull key: String): Unit = delegate.remove(key)
 
   /** Remove an attribute by key. <b>Case sensitive.</b>
     *
     * @param key attribute key to remove
     */
   @inline
-  def remove(@NotNull key: String): Unit = asJsoup.remove(key)
+  def remove(@NotNull key: String): Unit = delegate.remove(key)
 
   /** Remove an attribute by key. <b>Case insensitive.</b>
     *
     * @param key attribute key to remove
     */
   @inline
-  def removeIgnoreCase(@NotNull key: String): Unit = asJsoup.removeIgnoreCase(key)
+  def removeIgnoreCase(@NotNull key: String): Unit = delegate.removeIgnoreCase(key)
 
   /** Tests if these attributes contain an attribute with this key.
     *
@@ -122,7 +121,7 @@ final class Attributes private(val asJsoup: jn.Attributes) extends Iterable[Attr
     */
   @Contract(pure = true)
   @inline
-  def hasKey(@NotNull key: String): Boolean = asJsoup.hasKey(key)
+  def hasKey(@NotNull key: String): Boolean = delegate.hasKey(key)
 
   /** Tests if these attributes contain an attribute with this key.
     *
@@ -131,24 +130,24 @@ final class Attributes private(val asJsoup: jn.Attributes) extends Iterable[Attr
     */
   @Contract(pure = true)
   @inline
-  def hasKeyIgnoreCase(@NotNull key: String): Boolean = asJsoup.hasKeyIgnoreCase(key)
+  def hasKeyIgnoreCase(@NotNull key: String): Boolean = delegate.hasKeyIgnoreCase(key)
 
   /** Get the number of attributes in this set.
     *
     * @return size
     */
-  override def size: Int = asJsoup.size()
+  override def size: Int = delegate.size()
 
 
   @inline
-  def ++=(@NotNull incoming: Attributes): Unit = asJsoup.addAll(incoming.asJsoup)
+  def ++=(@NotNull incoming: Attributes): Unit = delegate.addAll(incoming.delegate)
 
   /** Add all the attributes from the incoming set to this set.
     *
     * @param incoming attributes to add to these attributes.
     */
   @inline
-  def addAll(@NotNull incoming: Attributes): Unit = asJsoup.addAll(incoming.asJsoup)
+  def addAll(@NotNull incoming: Attributes): Unit = delegate.addAll(incoming.delegate)
 
   /** Retrieves a filtered view of attributes that are HTML5 custom data attributes; that is, attributes with keys
     * starting with `data-`.
@@ -158,7 +157,7 @@ final class Attributes private(val asJsoup: jn.Attributes) extends Iterable[Attr
   @NotNull
   @Contract(pure = true)
   @inline
-  def dataset: mutable.Map[String, String] = asJsoup.dataset().asScala
+  def dataset: mutable.Map[String, String] = delegate.dataset().asScala
 
   /**
     * Get the HTML representation of these attributes.
@@ -168,32 +167,29 @@ final class Attributes private(val asJsoup: jn.Attributes) extends Iterable[Attr
     */
   @Contract(pure = true)
   @inline
-  def html: String = asJsoup.html()
+  def html: String = delegate.html()
 
   /** Internal method. Lowercases all keys.*/
   @inline
-  def normalize(): Unit = asJsoup.normalize()
+  def normalize(): Unit = delegate.normalize()
 
   override def iterator: Iterator[Attribute] = new Iterator[Attribute] {
-    private val it = asJsoup.iterator()
+    private val it = delegate.iterator()
 
     override def hasNext: Boolean = it.hasNext
 
-    override def next() = Attribute(it.next())
+    override def next() = new Attribute(it.next())
   }
 
-  override def toString(): String = asJsoup.toString
+  override def toString(): String = delegate.toString
 
   override def equals(obj: scala.Any): Boolean =
-    obj.isInstanceOf[Attributes] && obj.asInstanceOf[Attributes].asJsoup == asJsoup
+    obj.isInstanceOf[Attributes] && obj.asInstanceOf[Attributes].delegate == delegate
 
-  override def hashCode(): Int = asJsoup.hashCode()
+  override def hashCode(): Int = delegate.hashCode()
 }
 
 object Attributes {
-  @inline
-  def apply(asJsoup: jn.Attributes): Attributes = if (asJsoup == null) null else new Attributes(asJsoup)
-
   @inline
   def apply(): Attributes = new Attributes(new jn.Attributes())
 
@@ -201,5 +197,5 @@ object Attributes {
   def unapplySeq(attributes: Attributes): Option[Seq[Attribute]] = Some(attributes.toSeq)
 
   @inline
-  def unapplySeq(attributes: jn.Attributes): Option[Seq[Attribute]] = unapplySeq(Attributes(attributes))
+  def unapplySeq(attributes: jn.Attributes): Option[Seq[Attribute]] = unapplySeq(new Attributes(attributes))
 }

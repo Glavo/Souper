@@ -4,19 +4,6 @@ import org.jsoup.{nodes => jn}
 
 package object nodes {
 
-  // RichNode
-
-  implicit final class RichNode(val node: jn.Node) extends AnyVal {
-    @inline
-    def asSouper: Node = Node(node)
-  }
-
-  // RichElement
-
-  implicit final class RichElement(val node: jn.Element) extends AnyVal {
-    @inline
-    def asSouper: Element = Element(node)
-  }
 
   implicit final class RichDocument(val node: jn.Document) extends AnyVal {
     @inline

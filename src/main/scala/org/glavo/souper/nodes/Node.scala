@@ -11,16 +11,16 @@ import scala.collection.mutable
 abstract class Node extends Cloneable {
   type Self = Node.this.type
 
-  val asJsoup: jn.Node
+  val delegate: jn.Node
 
   /** Get the node name of this node. Use for debugging purposes and not logic switching (for that, use instanceof). */
   @NotNull
   @Contract(pure = true)
   @inline
-  final def nodeName: String = asJsoup.nodeName()
+  final def nodeName: String = delegate.nodeName()
 
   @inline
-  final def hasParent: Boolean = asJsoup.hasParent
+  final def hasParent: Boolean = delegate.hasParent
 
   /** Get an attribute's value by its key. <b>Case insensitive</b>
     *
@@ -41,11 +41,11 @@ abstract class Node extends Cloneable {
     */
   @NotNull
   @inline
-  final def attr(@NotNull attributeKey: String): String = asJsoup.attr(attributeKey)
+  final def attr(@NotNull attributeKey: String): String = delegate.attr(attributeKey)
 
   /** Get all of the element's attributes. */
   @inline
-  final def attributes: Attributes = Attributes(asJsoup.attributes())
+  final def attributes: Attributes = new Attributes(delegate.attributes())
 
   /**
     * Set an attribute (key=value). If the attribute already exists, it is replaced. The attribute key comparison is
@@ -57,7 +57,7 @@ abstract class Node extends Cloneable {
     */
   @inline
   final def attr(@NotNull attributeKey: String, attributeValue: String): Node.this.type = {
-    asJsoup.attr(attributeKey, attributeValue)
+    delegate.attr(attributeKey, attributeValue)
     this
   }
 
@@ -67,7 +67,7 @@ abstract class Node extends Cloneable {
     * @return true if the attribute exists, false if not.
     */
   @inline
-  final def hasAttr(@NotNull attributeKey: String): Boolean = asJsoup.hasAttr(attributeKey)
+  final def hasAttr(@NotNull attributeKey: String): Boolean = delegate.hasAttr(attributeKey)
 
   /** Remove an attribute from this element.
     *
@@ -76,7 +76,7 @@ abstract class Node extends Cloneable {
     */
   @inline
   final def removeAttr(@NotNull attributeKey: String): Node.this.type = {
-    asJsoup.removeAttr(attributeKey)
+    delegate.removeAttr(attributeKey)
     this
   }
 
@@ -86,18 +86,18 @@ abstract class Node extends Cloneable {
     */
   @inline
   final def clearAttributes(): Node.this.type = {
-    asJsoup.clearAttributes()
+    delegate.clearAttributes()
     this
   }
 
   /** Get the base URI of this node. */
   @NotNull
   @inline
-  def baseUri: String = asJsoup.baseUri()
+  def baseUri: String = delegate.baseUri()
 
   /** Update the base URI of this node and all of its descendants. */
   @inline
-  def baseUri_=(@NotNull baseUri: String): Unit = asJsoup.setBaseUri(baseUri)
+  def baseUri_=(@NotNull baseUri: String): Unit = delegate.setBaseUri(baseUri)
 
   /** Get an absolute URL from a URL attribute that may be relative (i.e. an `&lt;a href&gt;` or
     * `&lt;img src&gt;`).
@@ -119,7 +119,7 @@ abstract class Node extends Cloneable {
     * @see [[java.net.URL(java.net.URL, String)]]
     */
   @inline
-  def absUrl(@NotNull attributeKey: String): String = asJsoup.absUrl(attributeKey)
+  def absUrl(@NotNull attributeKey: String): String = delegate.absUrl(attributeKey)
 
   /** Get a child node by its 0-based index.
     *
@@ -127,7 +127,7 @@ abstract class Node extends Cloneable {
     * @return the child node at this index. Throws a { @code IndexOutOfBoundsException} if the index is out of bounds.
     */
   @inline
-  def childNode(index: Int): Node = Node(asJsoup.childNode(index))
+  def childNode(index: Int): Node = Node(delegate.childNode(index))
 
   /** Get this node's children. Presented as an unmodifiable list: new children can not be added, but the child nodes
     * themselves can be manipulated.
@@ -139,7 +139,7 @@ abstract class Node extends Cloneable {
   @Contract(pure = true)
   @inline
   def childNodes: Seq[Node] = new Seq[Node] {
-    private val list = asJsoup.childNodes()
+    private val list = delegate.childNodes()
 
     override def length: Int = list.size()
 
@@ -159,12 +159,12 @@ abstract class Node extends Cloneable {
   @NotNull
   @Contract(pure = true)
   @inline
-  def childNodesCopy: mutable.Buffer[Node] = new Node.ListView(asJsoup.childNodesCopy)
+  def childNodesCopy: mutable.Buffer[Node] = new Node.ListView(delegate.childNodesCopy)
 
   /** Get the number of child nodes that this node holds. */
   @Contract(pure = true)
   @inline
-  def childNodeSize: Int = asJsoup.childNodeSize()
+  def childNodeSize: Int = delegate.childNodeSize()
 
   /** Gets this node's parent node.
     *
@@ -173,7 +173,7 @@ abstract class Node extends Cloneable {
   @Nullable
   @Contract(pure = true)
   @inline
-  def parent = Node(asJsoup.parent())
+  def parent = Node(delegate.parent())
 
   /** Gets this node's parent node. Not overridable by extending classes, so useful if you really just need the Node type.
     *
@@ -182,13 +182,13 @@ abstract class Node extends Cloneable {
   @Nullable
   @Contract(pure = true)
   @inline
-  def parentNode = Node(asJsoup.parentNode())
+  def parentNode = Node(delegate.parentNode())
 
   /** Get this node's root node; that is, its topmost ancestor. If this node is the top ancestor, returns `this`. */
   @NotNull
   @Contract(pure = true)
   @inline
-  def root = Node(asJsoup.root())
+  def root = Node(delegate.root())
 
   /** Gets the Document associated with this Node.
     *
@@ -197,11 +197,11 @@ abstract class Node extends Cloneable {
   @Nullable
   @Contract(pure = true)
   @inline
-  def ownerDocument = Document(asJsoup.ownerDocument())
+  def ownerDocument = Document(delegate.ownerDocument())
 
   /** Remove (delete) this node from the DOM tree. If this node has children, they are also removed. */
   @inline
-  def remove(): Unit = asJsoup.remove()
+  def remove(): Unit = delegate.remove()
 
 
   /** Insert the specified HTML into the DOM before this node (i.e. as a preceding sibling).
@@ -212,7 +212,7 @@ abstract class Node extends Cloneable {
     */
   @inline
   def before(@NotNull html: String): Self = {
-    asJsoup.before(html)
+    delegate.before(html)
     this
   }
 
@@ -224,7 +224,7 @@ abstract class Node extends Cloneable {
     */
   @inline
   def before(@NotNull node: Node): Self = {
-    asJsoup.before(node.asJsoup)
+    delegate.before(node.delegate)
     this
   }
 
@@ -236,7 +236,7 @@ abstract class Node extends Cloneable {
     */
   @inline
   def after(@NotNull html: String): Self = {
-    asJsoup.after(html)
+    delegate.after(html)
     this
   }
 
@@ -248,7 +248,7 @@ abstract class Node extends Cloneable {
     */
   @inline
   def after(@NotNull node: Node): Self = {
-    asJsoup.after(node.asJsoup)
+    delegate.after(node.delegate)
     this
   }
 
@@ -260,7 +260,7 @@ abstract class Node extends Cloneable {
   @Nullable
   @inline
   def wrap(@NotNull html: String): Self = {
-    if (asJsoup.wrap(html) != null) this else null
+    if (delegate.wrap(html) != null) this else null
   }
 
   /** Removes this node from the DOM, and moves its children up into the node's parent. This has the effect of dropping
@@ -280,14 +280,14 @@ abstract class Node extends Cloneable {
   @Nullable
   @Contract(pure = true)
   @inline
-  def unwrap: Node = Node(asJsoup.unwrap())
+  def unwrap: Node = Node(delegate.unwrap())
 
   /** Replace this node in the DOM with the supplied node.
     *
     * @param in the node that will will replace the existing node.
     */
   @inline
-  def replaceWith(@NotNull in: Node): Unit = asJsoup.replaceWith(in.asJsoup)
+  def replaceWith(@NotNull in: Node): Unit = delegate.replaceWith(in.delegate)
 
   /** Retrieves this node's sibling nodes. Similar to `childNodes()  node.parent.childNodes()`, but does not
     * include this node (a node is not a sibling of itself).
@@ -297,7 +297,7 @@ abstract class Node extends Cloneable {
   @NotNull
   @Contract(pure = true)
   @inline
-  def siblingNodes: mutable.Buffer[Node] = new Node.ListView(asJsoup.siblingNodes())
+  def siblingNodes: mutable.Buffer[Node] = new Node.ListView(delegate.siblingNodes())
 
   /** Get this node's next sibling.
     *
@@ -306,7 +306,7 @@ abstract class Node extends Cloneable {
   @Nullable
   @Contract(pure = true)
   @inline
-  def nextSibling: Node = Node(asJsoup.nextSibling())
+  def nextSibling: Node = Node(delegate.nextSibling())
 
   /** Get this node's previous sibling.
     *
@@ -314,7 +314,7 @@ abstract class Node extends Cloneable {
     */
   @Nullable
   @inline
-  def previousSibling: Node = Node(asJsoup.previousSibling())
+  def previousSibling: Node = Node(delegate.previousSibling())
 
   /** Get the list index of this node in its node sibling list. I.e. if this is the first node
     * sibling, returns 0.
@@ -324,7 +324,7 @@ abstract class Node extends Cloneable {
     */
   @Contract(pure = true)
   @inline
-  def siblingIndex: Int = asJsoup.siblingIndex()
+  def siblingIndex: Int = delegate.siblingIndex()
 
   /** Perform a depth-first traversal through this node and its descendants.
     *
@@ -333,7 +333,7 @@ abstract class Node extends Cloneable {
     */
   @inline
   def traverse(@NotNull nodeVisitor: NodeVisitor): Self = {
-    asJsoup.traverse(nodeVisitor)
+    delegate.traverse(nodeVisitor)
     this
   }
 
@@ -344,7 +344,7 @@ abstract class Node extends Cloneable {
     */
   @inline
   def filter(@NotNull nodeFilter: NodeFilter): Self = {
-    asJsoup.filter(nodeFilter)
+    delegate.filter(nodeFilter)
     this
   }
 
@@ -352,7 +352,7 @@ abstract class Node extends Cloneable {
   @NotNull
   @Contract(pure = true)
   @inline
-  def outerHtml: String = asJsoup.outerHtml()
+  def outerHtml: String = delegate.outerHtml()
 
   /** Write this node and its children to the given [[java.lang.Appendable]].
     *
@@ -360,15 +360,15 @@ abstract class Node extends Cloneable {
     * @return the supplied [[java.lang.Appendable]], for chaining.
     */
   @inline
-  def html[A <: Appendable](@NotNull appendable: A): appendable.type = asJsoup.html(appendable)
+  def html[A <: Appendable](@NotNull appendable: A): appendable.type = delegate.html(appendable)
 
-  override def clone() = Node(asJsoup.clone())
+  override def clone() = Node(delegate.clone())
 
-  override def toString: String = asJsoup.toString
+  override def toString: String = delegate.toString
 
-  final override def equals(obj: scala.Any): Boolean = obj.isInstanceOf[Node] && obj.asInstanceOf[Node].asJsoup == asJsoup
+  final override def equals(obj: scala.Any): Boolean = obj.isInstanceOf[Node] && obj.asInstanceOf[Node].delegate == delegate
 
-  final override def hashCode(): Int = asJsoup.hashCode()
+  final override def hashCode(): Int = delegate.hashCode()
 }
 
 object Node {
@@ -385,31 +385,31 @@ object Node {
     case text: jn.TextNode => TextNode(text)
     case xml: jn.XmlDeclaration => XmlDeclaration(xml)
     case _ => new Node {
-      override val asJsoup: jn.Node = node
+      override val delegate: jn.Node = node
     }
   }
 
   private class ListView(val list: java.util.List[jn.Node]) extends mutable.Buffer[Node] {
     override def apply(n: Int): Node = Node(list.get(n))
 
-    override def update(n: Int, newelem: Node): Unit = list.set(n, newelem.asJsoup)
+    override def update(n: Int, newelem: Node): Unit = list.set(n, newelem.delegate)
 
     override def length: Int = list.size()
 
     override def +=(elem: Node): ListView.this.type = {
-      list.add(elem.asJsoup)
+      list.add(elem.delegate)
       this
     }
 
     override def clear(): Unit = list.clear()
 
     override def +=:(elem: Node): ListView.this.type = {
-      if (list.size() == 0) list.add(elem.asJsoup)
-      else list.add(0, elem.asJsoup)
+      if (list.size() == 0) list.add(elem.delegate)
+      else list.add(0, elem.delegate)
       this
     }
 
-    override def insertAll(n: Int, elems: Traversable[Node]): Unit = list.addAll(n, elems.map(_.asJsoup).toSeq.asJavaCollection)
+    override def insertAll(n: Int, elems: Traversable[Node]): Unit = list.addAll(n, elems.map(_.delegate).toSeq.asJavaCollection)
 
     override def remove(n: Int): Node = Node(list.remove(n))
 

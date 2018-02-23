@@ -4,42 +4,42 @@ import java.nio.charset.Charset
 
 import org.jsoup.{nodes => jn}
 
-final class Document(override val asJsoup: jn.Document) extends Element(asJsoup) {
-  def location: String = asJsoup.location()
+final class Document(override val delegate: jn.Document) extends Element(delegate) {
+  def location: String = delegate.location()
 
-  def head: Element = Element(asJsoup.head())
+  def head: Element = Element(delegate.head())
 
-  def body: Element = Element(asJsoup.body())
+  def body: Element = Element(delegate.body())
 
-  def title: String = asJsoup.title()
+  def title: String = delegate.title()
 
-  def title_=(title: String): Unit = asJsoup.title(title)
+  def title_=(title: String): Unit = delegate.title(title)
 
-  def createElement(tagName: String): Element = Element(asJsoup.createElement(tagName))
+  def createElement(tagName: String): Element = Element(delegate.createElement(tagName))
 
   def normalise(): Document.this.type = {
-    asJsoup.normalise()
+    delegate.normalise()
     this
   }
 
-  def charset: Charset = asJsoup.charset()
+  def charset: Charset = delegate.charset()
 
-  def charset_=(charset: Charset): Unit = asJsoup.charset(charset)
+  def charset_=(charset: Charset): Unit = delegate.charset(charset)
 
   //noinspection MutatorLikeMethodIsParameterless
-  def updateMetaCharsetElement: Boolean = asJsoup.updateMetaCharsetElement()
+  def updateMetaCharsetElement: Boolean = delegate.updateMetaCharsetElement()
 
-  def updateMetaCharsetElement_=(update: Boolean): Unit = asJsoup.updateMetaCharsetElement(update)
+  def updateMetaCharsetElement_=(update: Boolean): Unit = delegate.updateMetaCharsetElement(update)
 
-  override def clone(): Document = Document(asJsoup.clone())
+  override def clone(): Document = Document(delegate.clone())
 
-  def outputSettings: Document.OutputSettings = asJsoup.outputSettings()
+  def outputSettings: Document.OutputSettings = delegate.outputSettings()
 
-  def outputSettings_=(outputSettings: Document.OutputSettings): Unit = asJsoup.outputSettings(outputSettings)
+  def outputSettings_=(outputSettings: Document.OutputSettings): Unit = delegate.outputSettings(outputSettings)
 
-  def quirksMode: Document.QuirksMode = asJsoup.quirksMode()
+  def quirksMode: Document.QuirksMode = delegate.quirksMode()
 
-  def quirksMode_=(quirksMode: Document.QuirksMode): Unit = asJsoup.quirksMode(quirksMode)
+  def quirksMode_=(quirksMode: Document.QuirksMode): Unit = delegate.quirksMode(quirksMode)
 }
 
 object Document {

@@ -7,12 +7,13 @@ package object safety {
 
   type Cleaner = org.jsoup.safety.Cleaner
 
-  implicit final class RichCleaner(val asJsoup: Cleaner) extends AnyVal {
+  implicit final class RichCleaner(val delegate: Cleaner) extends AnyVal {
     @inline
-    def clean(dirtyDocument: Document): Document = asJsoup.clean(dirtyDocument.asJsoup).asSouper
+    def clean(dirtyDocument: Document): Document =
+      org.glavo.souper.nodes.Implicits.documentWrapper(delegate.clean(dirtyDocument.delegate))
 
     @inline
-    def isValid(dirtyDocument: Document): Boolean = asJsoup.isValid(dirtyDocument.asJsoup)
+    def isValid(dirtyDocument: Document): Boolean = delegate.isValid(dirtyDocument.delegate)
   }
 
 }

@@ -2,12 +2,12 @@ package org.glavo.souper.nodes
 
 import org.jsoup.{nodes => jn}
 
-final class DataNode private(override val asJsoup: jn.DataNode) extends LeafNode {
-  def wholeData: String = asJsoup.getWholeData
+final class DataNode(override val delegate: jn.DataNode) extends LeafNode {
+  def wholeData: String = delegate.getWholeData
 
-  def wholeData_=(data: String): Unit = asJsoup.setWholeData(data)
+  def wholeData_=(data: String): Unit = delegate.setWholeData(data)
 
-  def setWholeData(data: String): DataNode = DataNode(asJsoup.setWholeData(data))
+  def setWholeData(data: String): DataNode = new DataNode(delegate.setWholeData(data))
 }
 
 object DataNode {

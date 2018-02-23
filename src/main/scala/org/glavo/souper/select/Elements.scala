@@ -167,12 +167,12 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
 
   override def apply(n: Int): Element = Element(asJsoup.get(n))
 
-  override def update(n: Int, newelem: Element): Unit = asJsoup.set(n, newelem.asJsoup)
+  override def update(n: Int, newelem: Element): Unit = asJsoup.set(n, newelem.delegate)
 
   override def length: Int = asJsoup.size()
 
   override def +=(elem: Element): Elements.this.type = {
-    asJsoup.add(elem.asJsoup)
+    asJsoup.add(elem.delegate)
     this
   }
 
@@ -184,7 +184,7 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
   override def clear(): Unit = asJsoup.clear()
 
   override def +=:(elem: Element): Elements.this.type = {
-    asJsoup.add(0, elem.asJsoup)
+    asJsoup.add(0, elem.delegate)
     this
   }
 
@@ -194,7 +194,7 @@ class Elements private(val asJsoup: js.Elements) extends mutable.Buffer[Element]
   }
 
   override def insertAll(n: Int, elems: Traversable[Element]): Unit =
-    asJsoup.addAll(n, elems.map(_.asJsoup).toVector.asJavaCollection)
+    asJsoup.addAll(n, elems.map(_.delegate).toVector.asJavaCollection)
 
   override def remove(n: Int): Element = Element(asJsoup.remove(n))
 
@@ -226,7 +226,7 @@ object Elements {
     override def iterator(): util.Iterator[org.jsoup.nodes.Element] = new util.Iterator[org.jsoup.nodes.Element] {
       private val it = elements.iterator
 
-      override def next(): org.jsoup.nodes.Element = it.next().asJsoup
+      override def next(): org.jsoup.nodes.Element = it.next().delegate
 
       override def hasNext: Boolean = it.hasNext
     }

@@ -2,10 +2,10 @@ package org.glavo.souper.nodes
 
 import org.jsoup.{nodes => jn}
 
-final class XmlDeclaration private(override val asJsoup: jn.XmlDeclaration) extends LeafNode {
-  def name: String = asJsoup.name()
+final class XmlDeclaration(override val delegate: jn.XmlDeclaration) extends LeafNode {
+  def name: String = delegate.name()
 
-  def wholeDeclaration: String = asJsoup.getWholeDeclaration
+  def wholeDeclaration: String = delegate.getWholeDeclaration
 }
 
 object XmlDeclaration {

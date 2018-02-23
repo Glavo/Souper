@@ -7,18 +7,18 @@ import org.jsoup.{nodes => jn}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-class FormElement private(override val asJsoup: jn.FormElement) extends Element(asJsoup) {
-  def elements: Elements = Elements(asJsoup.elements())
+final class FormElement(override val delegate: jn.FormElement) extends Element(delegate) {
+  def elements: Elements = Elements(delegate.elements())
 
   def addElement(element: Element): FormElement.this.type = {
-    asJsoup.addElement(element.asJsoup)
+    delegate.addElement(element.delegate)
     this
   }
 
-  def submit: Connection = asJsoup.submit().asSouper
+  def submit: Connection = delegate.submit().asSouper
 
   def formData: mutable.Buffer[Connection.KeyVal] = new mutable.Buffer[Connection.KeyVal] {
-    private val data = asJsoup.formData()
+    private val data = delegate.formData()
 
     override def apply(n: Int): Connection.KeyVal = data.get(n).asSouper
 

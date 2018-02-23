@@ -17,7 +17,7 @@ package object parser {
   implicit def wrapTag(tag: jp.Tag): Tag = Tag(tag)
 
   @inline
-  implicit def unwrapTag(tag: Tag): jp.Tag = tag.asJsoup
+  implicit def unwrapTag(tag: Tag): jp.Tag = tag.delegate
 
   implicit class RichTag(val asJsoup: jp.Tag) extends AnyVal {
     @inline

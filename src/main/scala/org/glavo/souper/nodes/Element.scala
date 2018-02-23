@@ -13,19 +13,19 @@ import scala.collection.{immutable, mutable}
 import scala.collection.JavaConverters._
 import scala.util.matching.Regex
 
-class Element protected(override val asJsoup: jn.Element) extends Node {
+class Element(override val delegate: jn.Element) extends Node {
   /** Get the name of the tag for this element. E.g. `div`. */
   @NotNull
   @Contract(pure = true)
   @inline
-  def tagName: String = asJsoup.tagName()
+  def tagName: String = delegate.tagName()
 
   /** Set the tag of this element.
     *
     * @param tagName new tag name for this element
     */
   @inline
-  def tagName_=(@NotNull tagName: String): Unit = asJsoup.tagName(tagName)
+  def tagName_=(@NotNull tagName: String): Unit = delegate.tagName(tagName)
 
   /** Change the tag of this element. For example, convert a `<span>` to a `<div>` with
     * `el.tagName("div");`.
@@ -35,7 +35,7 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
     */
   @inline
   def tagName(@NotNull tagName: String): Self = {
-    asJsoup.tagName(tagName)
+    delegate.tagName(tagName)
     this
   }
 
@@ -43,7 +43,7 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
   @NotNull
   @Contract(pure = true)
   @inline
-  def tag = Tag(asJsoup.tag)
+  def tag = Tag(delegate.tag)
 
   /** Test if this element is a block-level element. (E.g. `<div> == true` or an inline element
     * `<p> == false`).
@@ -52,7 +52,7 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
     */
   @Contract(pure = true)
   @inline
-  def isBlock: Boolean = asJsoup.isBlock
+  def isBlock: Boolean = delegate.isBlock
 
   /** Get the `id` attribute of this element.
     *
@@ -61,7 +61,7 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
   @NotNull
   @Contract(pure = true)
   @inline
-  def id: String = asJsoup.id()
+  def id: String = delegate.id()
 
   /** Set a boolean attribute value on this element. Setting to `true` sets the attribute value to "" and
     * marks the attribute as boolean so no value is written out. Setting to `false` removes the attribute
@@ -73,7 +73,7 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
     */
   @inline
   def attr(@NotNull attributeKey: String, attributeValue: Boolean): Self = {
-    asJsoup.attr(attributeKey, attributeValue)
+    delegate.attr(attributeKey, attributeValue)
     this
   }
 
@@ -93,9 +93,9 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
   @NotNull
   @Contract(pure = true)
   @inline
-  def dataset: mutable.Map[String, String] = Attributes(asJsoup.attributes()).dataset
+  def dataset: mutable.Map[String, String] = new Attributes(delegate.attributes()).dataset
 
-  override final def parent: Element = Element(asJsoup.parent())
+  override final def parent: Element = Element(delegate.parent())
 
   /** Get this element's parent and ancestors, up to the document root.
     *
@@ -103,7 +103,7 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
     */
   @NotNull
   @inline
-  def parents = Elements(asJsoup.parents())
+  def parents = Elements(delegate.parents())
 
   /** Get a child element of this element, by its 0-based index number.
     *
@@ -115,7 +115,7 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
     * @see `childNode(int)`
     */
   @inline
-  def child(index: Int) = Element(asJsoup.child(index))
+  def child(index: Int) = Element(delegate.child(index))
 
   /** Get this element's child elements.
     *
@@ -127,7 +127,7 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
   @NotNull
   @Contract(pure = true)
   @inline
-  def children = Elements(asJsoup.children())
+  def children = Elements(delegate.children())
 
 
   /**
@@ -151,7 +151,7 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
   @Contract(pure = true)
   @inline
   def textNodes: scala.collection.immutable.Seq[TextNode] = new immutable.Seq[TextNode] {
-    private val list = asJsoup.textNodes()
+    private val list = delegate.textNodes()
 
     override def apply(idx: Int) = TextNode(list.get(idx))
 
@@ -178,9 +178,9 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
   @Contract(pure = true)
   @inline
   def dataNodes: scala.collection.immutable.Seq[DataNode] = new immutable.Seq[DataNode] {
-    private val list = asJsoup.dataNodes()
+    private val list = delegate.dataNodes()
 
-    override def apply(idx: Int) = DataNode(list.get(idx))
+    override def apply(idx: Int) = new DataNode(list.get(idx))
 
     override def length: Int = list.size()
 
@@ -212,33 +212,33 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
 
   def \@(attributeName: String): String = this.attr(attributeName)
 
-  def css(cssQuery: String): Elements = Elements(asJsoup.select(cssQuery))
+  def css(cssQuery: String): Elements = Elements(delegate.select(cssQuery))
 
-  def is(cssQuery: String): Boolean = asJsoup.is(cssQuery)
+  def is(cssQuery: String): Boolean = delegate.is(cssQuery)
 
-  def is(evaluator: Evaluator): Boolean = asJsoup.is(evaluator.asJsoup)
+  def is(evaluator: Evaluator): Boolean = delegate.is(evaluator.asJsoup)
 
   def appendChild(child: Node): Self = {
-    asJsoup.appendChild(child.asJsoup)
+    delegate.appendChild(child.delegate)
     this
   }
 
   def appendTo(parent: Element): Self = {
-    asJsoup.appendTo(parent.asJsoup)
+    delegate.appendTo(parent.delegate)
     this
   }
 
   def prependChild(child: Node): Self = {
-    asJsoup.prependChild(child.asJsoup)
+    delegate.prependChild(child.delegate)
     this
   }
 
   def insertChildren(index: Int, children: Iterable[Node]): Self = {
-    asJsoup.insertChildren(index, new util.AbstractCollection[jn.Node] {
+    delegate.insertChildren(index, new util.AbstractCollection[jn.Node] {
       override def iterator(): util.Iterator[jn.Node] = new util.Iterator[jn.Node] {
         private val it = children.iterator
 
-        override def next(): jn.Node = it.next().asJsoup
+        override def next(): jn.Node = it.next().delegate
 
         override def hasNext: Boolean = it.hasNext
       }
@@ -253,191 +253,191 @@ class Element protected(override val asJsoup: jn.Element) extends Node {
   def insertChildren(index: Int, children: Node*): Self =
     insertChildren(index, children)
 
-  def appendElement(tagName: String): Element = Element(asJsoup.appendElement(tagName))
+  def appendElement(tagName: String): Element = Element(delegate.appendElement(tagName))
 
-  def prependElement(tagName: String): Element = Element(asJsoup.prependElement(tagName))
+  def prependElement(tagName: String): Element = Element(delegate.prependElement(tagName))
 
   def appendText(text: String): Self = {
-    asJsoup.appendText(text)
+    delegate.appendText(text)
     this
   }
 
   def prependText(text: String): Self = {
-    asJsoup.appendText(text)
+    delegate.appendText(text)
     this
   }
 
   def +=(html: String): Self = {
-    asJsoup.append(html)
+    delegate.append(html)
     this
   }
 
   def append(html: String): Self = {
-    asJsoup.append(html)
+    delegate.append(html)
     this
   }
 
   def +=:(html: String): Self = {
-    asJsoup.prepend(html)
+    delegate.prepend(html)
     this
   }
 
   def prepend(html: String): Self = {
-    asJsoup.prepend(html)
+    delegate.prepend(html)
     this
   }
 
   def empty(): Self = {
-    asJsoup.empty()
+    delegate.empty()
     this
   }
 
-  def cssSelector: String = asJsoup.cssSelector()
+  def cssSelector: String = delegate.cssSelector()
 
-  def siblingElements: Elements = Elements(asJsoup.siblingElements())
+  def siblingElements: Elements = Elements(delegate.siblingElements())
 
-  def nextElementSibling: Element = Element(asJsoup.nextElementSibling())
+  def nextElementSibling: Element = Element(delegate.nextElementSibling())
 
-  def previousElementSibling: Element = Element(asJsoup.previousElementSibling())
+  def previousElementSibling: Element = Element(delegate.previousElementSibling())
 
-  def firstElementSibling: Element = Element(asJsoup.firstElementSibling())
+  def firstElementSibling: Element = Element(delegate.firstElementSibling())
 
-  def elementSiblingIndex: Int = asJsoup.elementSiblingIndex()
+  def elementSiblingIndex: Int = delegate.elementSiblingIndex()
 
-  def lastElementSibling: Element = Element(asJsoup.lastElementSibling())
+  def lastElementSibling: Element = Element(delegate.lastElementSibling())
 
   // DOM type methods
 
-  def getElementsByTag(tagName: String): Elements = Elements(asJsoup.getElementsByTag(tagName))
+  def getElementsByTag(tagName: String): Elements = Elements(delegate.getElementsByTag(tagName))
 
-  def getElementById(id: String): Element = Element(asJsoup.getElementById(id))
+  def getElementById(id: String): Element = Element(delegate.getElementById(id))
 
-  def getElementsByClass(className: String): Elements = Elements(asJsoup.getElementsByClass(className))
+  def getElementsByClass(className: String): Elements = Elements(delegate.getElementsByClass(className))
 
-  def getElementsByAttribute(key: String): Elements = Elements(asJsoup.getElementsByAttribute(key))
+  def getElementsByAttribute(key: String): Elements = Elements(delegate.getElementsByAttribute(key))
 
   def getElementsByAttributeStarting(keyPrefix: String): Elements =
-    Elements(asJsoup.getElementsByAttributeStarting(keyPrefix))
+    Elements(delegate.getElementsByAttributeStarting(keyPrefix))
 
   def getElementsByAttributeValue(key: String, value: String): Elements =
-    Elements(asJsoup.getElementsByAttributeValue(key, value))
+    Elements(delegate.getElementsByAttributeValue(key, value))
 
   def getElementsByAttributeValueNot(key: String, value: String): Elements =
-    Elements(asJsoup.getElementsByAttributeValueNot(key, value))
+    Elements(delegate.getElementsByAttributeValueNot(key, value))
 
   def getElementsByAttributeValueStarting(key: String, valuePrefix: String) =
-    Elements(asJsoup.getElementsByAttributeValueStarting(key, valuePrefix))
+    Elements(delegate.getElementsByAttributeValueStarting(key, valuePrefix))
 
   def getElementsByAttributeValueEnding(key: String, valueSuffix: String) =
-    Elements(asJsoup.getElementsByAttributeValueEnding(key, valueSuffix))
+    Elements(delegate.getElementsByAttributeValueEnding(key, valueSuffix))
 
   def getElementsByAttributeValueContaining(key: String, matcher: String): Elements =
-    Elements(asJsoup.getElementsByAttributeValueContaining(key, matcher))
+    Elements(delegate.getElementsByAttributeValueContaining(key, matcher))
 
   def getElementsByAttributeValueMatching(key: String, regex: Regex): Elements =
-    Elements(asJsoup.getElementsByAttributeValueMatching(key, regex.pattern))
+    Elements(delegate.getElementsByAttributeValueMatching(key, regex.pattern))
 
   def getElementsByAttributeValueMatching(key: String, pattern: Pattern): Elements =
-    Elements(asJsoup.getElementsByAttributeValueMatching(key, pattern))
+    Elements(delegate.getElementsByAttributeValueMatching(key, pattern))
 
   def getElementsByAttributeValueMatching(key: String, regex: String): Elements =
-    Elements(asJsoup.getElementsByAttributeValueMatching(key, regex))
+    Elements(delegate.getElementsByAttributeValueMatching(key, regex))
 
   def getElementsByIndexLessThan(index: Int): Elements =
-    Elements(asJsoup.getElementsByIndexLessThan(index))
+    Elements(delegate.getElementsByIndexLessThan(index))
 
   def getElementsByIndexGreaterThan(index: Int): Elements =
-    Elements(asJsoup.getElementsByIndexGreaterThan(index))
+    Elements(delegate.getElementsByIndexGreaterThan(index))
 
   def getElementsByIndexEquals(index: Int): Elements =
-    Elements(asJsoup.getElementsByIndexEquals(index))
+    Elements(delegate.getElementsByIndexEquals(index))
 
   def getElementsContainingText(searchText: String): Elements =
-    Elements(asJsoup.getElementsContainingText(searchText))
+    Elements(delegate.getElementsContainingText(searchText))
 
   def getElementsContainingOwnText(searchText: String): Elements =
-    Elements(asJsoup.getElementsContainingOwnText(searchText))
+    Elements(delegate.getElementsContainingOwnText(searchText))
 
   def getElementsMatchingText(regex: Regex): Elements =
-    Elements(asJsoup.getElementsMatchingText(regex.pattern))
+    Elements(delegate.getElementsMatchingText(regex.pattern))
 
   def getElementsMatchingText(pattern: Pattern): Elements =
-    Elements(asJsoup.getElementsMatchingText(pattern))
+    Elements(delegate.getElementsMatchingText(pattern))
 
   def getElementsMatchingText(regex: String): Elements =
-    Elements(asJsoup.getElementsMatchingText(regex))
+    Elements(delegate.getElementsMatchingText(regex))
 
   def getElementsMatchingOwnText(regex: Regex): Elements =
-    Elements(asJsoup.getElementsMatchingOwnText(regex.pattern))
+    Elements(delegate.getElementsMatchingOwnText(regex.pattern))
 
   def getElementsMatchingOwnText(pattern: Pattern): Elements =
-    Elements(asJsoup.getElementsMatchingOwnText(pattern))
+    Elements(delegate.getElementsMatchingOwnText(pattern))
 
   def getElementsMatchingOwnText(regex: String): Elements =
-    Elements(asJsoup.getElementsMatchingOwnText(regex))
+    Elements(delegate.getElementsMatchingOwnText(regex))
 
-  def allElements: Elements = Elements(asJsoup.getAllElements)
+  def allElements: Elements = Elements(delegate.getAllElements)
 
-  def getAllElements: Elements = Elements(asJsoup.getAllElements)
+  def getAllElements: Elements = Elements(delegate.getAllElements)
 
-  def text: String = asJsoup.text()
+  def text: String = delegate.text()
 
-  def text_=(text: String): Unit = asJsoup.text(text)
+  def text_=(text: String): Unit = delegate.text(text)
 
   def text(text: String): Self = {
-    asJsoup.text(text)
+    delegate.text(text)
     this
   }
 
-  def wholeText: String = asJsoup.wholeText()
+  def wholeText: String = delegate.wholeText()
 
-  def ownText: String = asJsoup.ownText()
+  def ownText: String = delegate.ownText()
 
-  def hasText: Boolean = asJsoup.hasText
+  def hasText: Boolean = delegate.hasText
 
-  def data: String = asJsoup.data()
+  def data: String = delegate.data()
 
-  def className: String = asJsoup.className()
+  def className: String = delegate.className()
 
-  def classNames: mutable.Set[String] = asJsoup.classNames().asScala
+  def classNames: mutable.Set[String] = delegate.classNames().asScala
 
-  def classNames_=(classNames: mutable.Set[String]): Unit = asJsoup.classNames(classNames.asJava)
+  def classNames_=(classNames: mutable.Set[String]): Unit = delegate.classNames(classNames.asJava)
 
   def classNames(classNames: mutable.Set[String]): Self = {
-    asJsoup.classNames(classNames.asJava)
+    delegate.classNames(classNames.asJava)
     this
   }
 
-  def hasClass(className: String): Boolean = asJsoup.hasClass(className)
+  def hasClass(className: String): Boolean = delegate.hasClass(className)
 
   def addClass(className: String): Self = {
-    asJsoup.addClass(className)
+    delegate.addClass(className)
     this
   }
 
   def removeClass(className: String): Self = {
-    asJsoup.removeClass(className)
+    delegate.removeClass(className)
     this
   }
 
   def toggleClass(className: String): Self = {
-    asJsoup.toggleClass(className)
+    delegate.toggleClass(className)
     this
   }
 
-  def value: String = asJsoup.`val`()
+  def value: String = delegate.`val`()
 
-  def value_=(value: String): Unit = asJsoup.`val`(value)
+  def value_=(value: String): Unit = delegate.`val`(value)
 
   def value(value: String): Self = {
-    asJsoup.`val`(value)
+    delegate.`val`(value)
     this
   }
 
-  def html: String = asJsoup.html()
+  def html: String = delegate.html()
 
   def html(html: String): Self = {
-    asJsoup.html(html)
+    delegate.html(html)
     this
   }
 }
@@ -452,7 +452,7 @@ object Element {
   }
 
   def apply(tag: Tag, baseUri: String, attributes: Attributes = null): Element =
-    Element(new jn.Element(tag.asJsoup, baseUri, if (attributes == null) null else attributes.asJsoup))
+    Element(new jn.Element(tag.delegate, baseUri, if (attributes == null) null else attributes.delegate))
 
   def apply(tag: String): Element = new Element(new jn.Element(tag))
 }

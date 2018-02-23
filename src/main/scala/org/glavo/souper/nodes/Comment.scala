@@ -2,8 +2,8 @@ package org.glavo.souper.nodes
 
 import org.jsoup.{nodes => jn}
 
-final class Comment private(override val asJsoup: jn.Comment) extends LeafNode {
-  def data: String = asJsoup.getData
+final class Comment(override val delegate: jn.Comment) extends LeafNode {
+  def data: String = delegate.getData
 }
 
 object Comment {

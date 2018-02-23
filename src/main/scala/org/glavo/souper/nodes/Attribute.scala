@@ -3,53 +3,51 @@ package org.glavo.souper.nodes
 import org.jetbrains.annotations.{NotNull, Nullable, Contract}
 import org.jsoup.{nodes => jn}
 
-/** A single key + value attribute. (Only used for presentation.) */
-final class Attribute private(val asJsoup: jn.Attribute) extends Product2[String, String] with Cloneable {
+/** A single key + value attribute. (Only used for presentation.)
+  * @constructor  Create a Attribute from jsoup Attribute.
+  */
+final class Attribute(val delegate: jn.Attribute) extends Product2[String, String] with Cloneable {
   /** Return the attribute key. */
   @NotNull
   @Contract(pure = true)
-  def key: String = asJsoup.getKey
+  def key: String = delegate.getKey
 
   /** Set the attribute key; case is preserved.
     *
     * @param key the new key
     */
-  def key_=(@NotNull key: String): Unit = asJsoup.setKey(key)
+  def key_=(@NotNull key: String): Unit = delegate.setKey(key)
 
   /** Return the attribute value. */
   @Contract(pure = true)
-  def value: String = asJsoup.getValue
+  def value: String = delegate.getValue
 
   /** Set the attribute value.
     *
     * @param value the new attribute value; must not be null
     */
-  def value_=(value: String): Unit = asJsoup.setValue(value)
+  def value_=(value: String): Unit = delegate.setValue(value)
 
-  /** Return the HTML representation of this attribute; e.g. `href="index.html"`.*/
+  /** Return the HTML representation of this attribute; e.g. `href="index.html"`. */
   @NotNull
-  def html: String = asJsoup.html()
+  def html: String = delegate.html()
 
-  override def _1: String = asJsoup.getKey
+  override def _1: String = delegate.getKey
 
-  override def _2: String = asJsoup.getValue
+  override def _2: String = delegate.getValue
 
   override def canEqual(that: Any): Boolean = that.isInstanceOf[Attribute]
 
-  override def clone() = new Attribute(asJsoup.clone())
+  override def clone() = new Attribute(delegate.clone())
 
-  override def hashCode(): Int = asJsoup.hashCode()
+  override def hashCode(): Int = delegate.hashCode()
 
-  override def equals(obj: scala.Any): Boolean = canEqual(obj) && obj.asInstanceOf[Attribute].asJsoup == asJsoup
+  override def equals(obj: scala.Any): Boolean = canEqual(obj) && obj.asInstanceOf[Attribute].delegate == delegate
 
-  override def toString: String = asJsoup.toString
+  override def toString: String = delegate.toString
 }
 
 object Attribute {
-
-  /** Create a attribute from jsoup attribute. */
-  def apply(asJsoup: jn.Attribute): Attribute = if (asJsoup == null) null else new Attribute(asJsoup)
-
   /** Create a new attribute from unencoded (raw) key and value.
     *
     * @param key    attribute key; case is preserved.
@@ -58,7 +56,7 @@ object Attribute {
     * @see [[org.glavo.souper.nodes.Attribute#createFromEncoded]]
     */
   def apply(@NotNull key: String, value: String, @Nullable parent: Attributes = null) =
-    new Attribute(new jn.Attribute(key, value, if (parent == null) null else parent.asJsoup))
+    new Attribute(new jn.Attribute(key, value, if (parent == null) null else parent.delegate))
 
   def unapply(arg: Attribute): Option[(String, String)] = Some((arg.key, arg.value))
 

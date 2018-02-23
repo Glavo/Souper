@@ -1,5 +1,6 @@
 package org.glavo.souper.select
 
+import org.glavo.souper.nodes
 import org.glavo.souper.nodes._
 import org.jsoup.{nodes => jn, select => js}
 
@@ -10,9 +11,10 @@ trait Evaluator {
 }
 
 object Evaluator {
+
   private[select] final class AsJsoup(val evaluator: Evaluator) extends org.jsoup.select.Evaluator {
     override def matches(root: jn.Element, element: jn.Element): Boolean = {
-      evaluator.matches(root.asSouper, element.asSouper)
+      evaluator.matches(nodes.Implicits.elementWrapper(root), nodes.Implicits.elementWrapper(element))
     }
 
     override def toString: String = evaluator.toString

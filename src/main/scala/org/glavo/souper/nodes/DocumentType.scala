@@ -2,10 +2,10 @@ package org.glavo.souper.nodes
 
 import org.jsoup.{nodes => jn}
 
-final class DocumentType private(override val asJsoup: jn.DocumentType) extends LeafNode {
-  def pubSysKey: String = asJsoup.attr(DocumentType.PubSysKey)
+final class DocumentType(override val delegate: jn.DocumentType) extends LeafNode {
+  def pubSysKey: String = delegate.attr(DocumentType.PubSysKey)
 
-  def pubSysKey_=(value: String): Unit = asJsoup.setPubSysKey(value)
+  def pubSysKey_=(value: String): Unit = delegate.setPubSysKey(value)
 }
 
 object DocumentType {

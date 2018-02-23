@@ -2,16 +2,16 @@ package org.glavo.souper.nodes
 
 import org.jsoup.{nodes => jn}
 
-final class TextNode private(override val asJsoup: jn.TextNode) extends LeafNode {
-  def text: String = asJsoup.text()
+final class TextNode(override val delegate: jn.TextNode) extends LeafNode {
+  def text: String = delegate.text()
 
-  def text(text: String): TextNode = TextNode(asJsoup.text(text))
+  def text(text: String): TextNode = TextNode(delegate.text(text))
 
-  def wholeText: String = asJsoup.getWholeText
+  def wholeText: String = delegate.getWholeText
 
-  def isBlank: Boolean = asJsoup.isBlank
+  def isBlank: Boolean = delegate.isBlank
 
-  def splitText(offset: Int) = TextNode(asJsoup.splitText(offset))
+  def splitText(offset: Int) = TextNode(delegate.splitText(offset))
 
 
 }

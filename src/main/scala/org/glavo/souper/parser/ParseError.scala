@@ -2,14 +2,14 @@ package org.glavo.souper.parser
 
 import org.jsoup.{parser => jp}
 
-final class ParseError private(val asJsoup: jp.ParseError) extends AnyVal {
+final class ParseError(val delegate: jp.ParseError) extends AnyVal {
   @inline
-  def errorMessage: String = asJsoup.getErrorMessage
+  def errorMessage: String = delegate.getErrorMessage
 
   @inline
-  def position: Int = asJsoup.getPosition
+  def position: Int = delegate.getPosition
 
-  override def toString: String = asJsoup.toString
+  override def toString: String = delegate.toString
 }
 
 object ParseError {

@@ -16,7 +16,7 @@ package object select {
       case s: Evaluator.AsJsoup => s.evaluator
       case _ => new Evaluator {
         override def matches(root: Element, element: Element): Boolean =
-          asJsoup.matches(root.asJsoup, element.asJsoup)
+          asJsoup.matches(root.delegate, element.delegate)
 
         override def asJsoup: jsoup.select.Evaluator = RichEvaluator.this.asJsoup
       }

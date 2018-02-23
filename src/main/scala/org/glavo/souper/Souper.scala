@@ -8,26 +8,28 @@ import org.glavo.souper.parser.Parser
 import org.glavo.souper.safety.Whitelist
 import org.jsoup.Jsoup
 
+import org.glavo.souper.Implicits._
+
 /** The core public access point to the souper functionality. */
 object Souper {
   def parse(html: String, baseUri: String = "")(implicit parser: Parser): Document =
-    Jsoup.parse(html, baseUri, parser.asJsoup).asSouper
+    Jsoup.parse(html, baseUri, parser.delegate)
 
   def connect(url: String): Connection = Connection(Jsoup.connect(url))
 
   def parse(in: File, charsetName: String, baseUri: String): Document =
-    Jsoup.parse(in, charsetName, baseUri).asSouper
+    Jsoup.parse(in, charsetName, baseUri)
 
   def parse(in: File, charsetName: String): Document =
-    Jsoup.parse(in, charsetName).asSouper
+    org.glavo.souper.nodes.Implicits.documentWrapper(Jsoup.parse(in, charsetName))
 
   def parse(in: InputStream, charsetName: String, baseUri: String)(implicit parser: Parser): Document =
-    Jsoup.parse(in, charsetName, baseUri, parser.asJsoup).asSouper
+    Jsoup.parse(in, charsetName, baseUri, parser.delegate)
 
   def parseBodyFragment(bodyHtml: String, baseUri: String = ""): Document =
-    Jsoup.parseBodyFragment(bodyHtml, baseUri).asSouper
+    Jsoup.parseBodyFragment(bodyHtml, baseUri)
 
-  def parse(url: URL, timeoutMillis: Int): Document = Jsoup.parse(url, timeoutMillis).asSouper
+  def parse(url: URL, timeoutMillis: Int): Document = Jsoup.parse(url, timeoutMillis)
 
   def clean(bodyHtml: String, baseUri: String, whitelist: Whitelist): String = Jsoup.clean(bodyHtml, baseUri, whitelist)
 
