@@ -2,6 +2,7 @@ package org.glavo.souper.select
 
 import org.glavo.souper.{SouperDelegate, nodes}
 import org.glavo.souper.nodes._
+import org.glavo.souper.Implicits._
 import org.jsoup.{nodes => jn, select => js}
 
 trait Evaluator {
@@ -97,6 +98,70 @@ object Evaluator {
     def apply(keyPrefix: String): AttributeStarting = new AttributeStarting(new js.Evaluator.AttributeStarting(keyPrefix))
   }
 
-  abstract class AttributeKeyPair extends Evaluator
+  abstract class AttributeKeyPair(override val delegate: js.Evaluator.AttributeKeyPair)
+    extends WrappedEvaluator[js.Evaluator.AttributeKeyPair] {
+    def this(key: String, value: String) {
+      this(new js.Evaluator.AttributeKeyPair(key, value) {
+        override def matches(root: jn.Element, element: jn.Element): Boolean =
+          matches(root, element)
+      })
+    }
+  }
+
+  object AttributeKeyPair {
+    def apply(e: js.Evaluator.AttributeKeyPair): AttributeKeyPair = e match {
+      case null => null
+      //todo
+      case _ => new AttributeKeyPair(e) {}
+    }
+  }
+
+  final class AttributeWithValue(override val delegate: js.Evaluator.AttributeWithValue)
+    extends AttributeKeyPair(delegate)
+      with WrappedEvaluator[js.Evaluator.AttributeWithValue]
+
+  object AttributeWithValue {
+    def apply(delegate: js.Evaluator.AttributeWithValue): AttributeWithValue =
+      if (delegate != null) new AttributeWithValue(delegate) else null
+
+    def apply(key: String, value: String): AttributeWithValue =
+      new AttributeWithValue(new js.Evaluator.AttributeWithValue(key, value))
+  }
+
+  final class AttributeWithValueStarting(override val delegate: js.Evaluator.AttributeWithValueStarting)
+    extends AttributeKeyPair(delegate)
+      with WrappedEvaluator[js.Evaluator.AttributeWithValueStarting]
+
+  object AttributeWithValueStarting {
+    def apply(delegate: js.Evaluator.AttributeWithValueStarting): AttributeWithValueStarting =
+      if (delegate != null) new AttributeWithValueStarting(delegate) else null
+
+    def apply(key: String, value: String): AttributeWithValueStarting =
+      new AttributeWithValueStarting(new js.Evaluator.AttributeWithValueStarting(key, value))
+  }
+
+  final class AttributeWithValueEnding(override val delegate: js.Evaluator.AttributeWithValueEnding)
+    extends AttributeKeyPair(delegate)
+      with WrappedEvaluator[js.Evaluator.AttributeWithValueEnding]
+
+  object AttributeWithValueEnding {
+    def apply(delegate: js.Evaluator.AttributeWithValueEnding): AttributeWithValueEnding =
+      if (delegate != null) new AttributeWithValueEnding(delegate) else null
+
+    def apply(key: String, value: String): AttributeWithValueEnding =
+      new AttributeWithValueEnding(new js.Evaluator.AttributeWithValueEnding(key, value))
+  }
+
+  final class AttributeWithValueContaining(override val delegate: js.Evaluator.AttributeWithValueContaining)
+    extends AttributeKeyPair(delegate)
+      with WrappedEvaluator[js.Evaluator.AttributeWithValueContaining]
+
+  object AttributeWithValueContaining {
+    def apply(delegate: js.Evaluator.AttributeWithValueContaining): AttributeWithValueContaining =
+      if (delegate != null) new AttributeWithValueContaining(delegate) else null
+
+    def apply(key: String, value: String): AttributeWithValueContaining =
+      new AttributeWithValueContaining(new js.Evaluator.AttributeWithValueContaining(key, value))
+  }
   //todo
 }
